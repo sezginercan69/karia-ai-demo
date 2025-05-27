@@ -4,17 +4,17 @@ import os
 st.set_page_config(page_title="LCW AI Demo", layout="wide")
 
 # Sayfa seçimi
-sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Demo"])
+sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Kampanya Asistanı"])
 
 # Anasayfa
 if sayfa == "Anasayfa":
     st.image("karia_header.png", use_container_width=True)
-    st.title("📦 LCW AI Demo – Akıllı Kampanya Asistanı")
+    st.title("📦 Karia – Akıllı Kampanya Asistanı")
 
     st.markdown("""
     Hoş geldiniz!
 
-    Bu uygulama, yüklediğiniz ürün verisine göre:
+    Bu uygulama yüklediğiniz ürün verisine göre:
 
     ✅ Yeni fiyat önerir  
     ✅ Uygun kampanyaları analiz eder  
@@ -29,8 +29,8 @@ if sayfa == "Anasayfa":
     st.success("🧠 Yapay zeka destekli karar önerileri")
     st.success("📈 ROI ve indirim oranı analizi")
     st.markdown("---")
-    st.markdown("### Devam etmek için sol üstten **Demo** sayfasını seçin.")
+    st.markdown("### Devam etmek için sol üstten **Kampanya Asistanı** sayfasını seçin.")
 
 # Demo
-elif sayfa == "Demo":
+elif sayfa == "Kampanya Asistanı":
     exec(open("demo.py").read())
