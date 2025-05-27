@@ -56,6 +56,12 @@ st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
 
+st.sidebar.header("Model Seçimi")
+model_secimi = st.sidebar.selectbox(
+    "Bir model seçin:",
+    ["openai/gpt-3.5-turbo", "openai/gpt-4o-mini"]
+)
+
 show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=False)
 
 if not show_dashboard:
@@ -101,13 +107,13 @@ if not show_dashboard:
     """
 
     if st.button("💡 Karia’dan Öneri Al"):
-        with st.spinner("gpt-4o-mini modeliyle yanıt alınıyor..."):
+        with st.spinner(f"{model_secimi} modeliyle yanıt alınıyor..."):
             headers = {
                 "Authorization": f"Bearer {openrouter_api_key}",
                 "Content-Type": "application/json"
             }
             data = {
-                "model": "openai/gpt-4o-mini",
+                "model": model_secimi,
                 "messages": [
                     {"role": "system", "content": "Sen bir e-ticaret karar destek yapay zekasısın."},
                     {"role": "user", "content": prompt}
