@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
 # Sayfa yapılandırması
-st.set_page_config(page_title="LCW AI Demo", layout="wide")
 st.image("karia_header.png", use_container_width=True)
 st.title("LCW AI Fiyatlandırma & Kampanya Asistanı")
 
