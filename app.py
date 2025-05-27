@@ -4,7 +4,7 @@ import os
 st.set_page_config(page_title="LCW AI Demo", layout="wide")
 
 # Sayfa seçimi
-sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Kampanya Asistanı"])
+sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Demo"])
 
 # Anasayfa
 if sayfa == "Anasayfa":
@@ -29,8 +29,8 @@ if sayfa == "Anasayfa":
     st.success("🧠 Yapay zeka destekli karar önerileri")
     st.success("📈 ROI ve indirim oranı analizi")
     st.markdown("---")
-    st.markdown("### Devam etmek için sol üstten **Kampanya Asistanı** sayfasını seçin.")
+    st.markdown("### Devam etmek için sol üstten **Demo** sayfasını seçin.")
 
 # Demo
-elif sayfa == "Kampanya Asistanı":
+elif sayfa == "Demo":
     exec(open("demo.py").read())
