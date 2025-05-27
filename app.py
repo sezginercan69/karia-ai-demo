@@ -56,12 +56,6 @@ st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
 
-st.sidebar.header("Model Seçimi")
-model_secimi = st.sidebar.selectbox(
-    "Bir model seçin:",
-    ["openai/gpt-3.5-turbo", "openai/gpt-4o-mini"]
-)
-
 show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=False)
 
 if not show_dashboard:
@@ -85,9 +79,9 @@ if not show_dashboard:
     # Prompt
     prompt = f"""
     Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
-    1. Yeni bir satış fiyatı öner
-    2. Uygun bir kampanya önerisi sun
-    3. Neden bu önerileri verdiğini açıkla
+    1. Eğer gerekliyse yeni bir satış fiyatı öner, gerek değilse mevcut fiyatı koru.
+    2. Uygun bir kampanya önerisi sun (eğer gerekiyorsa).
+    3. Tüm kararlarının nedenlerini kısa ve net şekilde açıkla.
 
     Ürün Bilgileri:
     - Kategori: {secili_urun['kategori']}
@@ -107,13 +101,13 @@ if not show_dashboard:
     """
 
     if st.button("💡 Karia’dan Öneri Al"):
-        with st.spinner(f"{model_secimi} modeliyle yanıt alınıyor..."):
+        with st.spinner("gpt-4o-mini modeliyle yanıt alınıyor..."):
             headers = {
                 "Authorization": f"Bearer {openrouter_api_key}",
                 "Content-Type": "application/json"
             }
             data = {
-                "model": model_secimi,
+                "model": "openai/gpt-4o-mini",
                 "messages": [
                     {"role": "system", "content": "Sen bir e-ticaret karar destek yapay zekasısın."},
                     {"role": "user", "content": prompt}
@@ -180,6 +174,22 @@ else:
             daily = expected_revenue / duration_days
             daily_revenue = [round(daily * (1 + 0.1 * random.uniform(-1, 1)), 2) for _ in range(duration_days)]
 
+            # Ortalama indirim yüzdesini doğru şekilde hesapla
+            discount_list = []
+            for p in campaign_products:
+                try:
+                    cp = float(str(p["current_price"]).replace(",", ".").replace(" TL", "").strip())
+                    np = float(str(p["new_price"]).replace(",", ".").replace(" TL", "").strip())
+                    if cp > 0:
+                        indirim_orani = ((cp - np) / cp) * 100
+                    else:
+                        indirim_orani = 0
+                    discount_list.append(indirim_orani)
+                except:
+                    discount_list.append(0)
+
+            average_discount = round(sum(discount_list) / len(discount_list))
+            
             campaigns.append({
                 "title": name,
                 "reason": reason,
@@ -189,7 +199,7 @@ else:
                 "roi": round(total_roi / len(campaign_products), 2),
                 "products": campaign_products,
                 "daily_revenue": daily_revenue,
-                "average_discount": round(sum([p["current_price"] - p["new_price"] for p in campaign_products]) / len(campaign_products))
+                "average_discount": average_discount,
             })
 
         return campaigns
@@ -211,15 +221,59 @@ else:
         st.write(f"📈 Tahmini tıklama artışı: +%{kampanya['expected_click_increase']}")
         st.write(f"🔁 ROI: {kampanya['roi']}x")
 
-        st.markdown("**📃 Ürün Listesi:**")
-        for p in kampanya["products"]:
-            st.write(f"- {p['name']} | {p['current_price']} TL → {p['new_price']} TL")
+        with st.expander(f"📃 Ürün Listesi ({len(kampanya['products'])} ürün)"):
+            for p in kampanya["products"]:
+                st.write(f"- {p['name']} | {p['current_price']} TL → {p['new_price']} TL")
 
         st.markdown("---")
+        import plotly.graph_objects as go
+
         st.subheader("📊 Günlük Ciro Tahmini")
-        fig, ax = plt.subplots()
-        ax.plot(range(1, kampanya["duration_days"] + 1), kampanya["daily_revenue"], marker='o')
-        ax.set_xlabel("Gün")
-        ax.set_ylabel("Ciro (TL)")
-        ax.set_title("Gün Bazlı Ciro Dağılımı")
-        st.pyplot(fig)
+
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanya["daily_revenue"],
+            mode='lines+markers',
+            name='Kampanya ile',
+            line=dict(color='green')
+        ))
+        fig1.update_layout(
+            title="Kampanyalı Günlük Ciro Dağılımı",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=300,
+            template="plotly_white"
+        )
+        st.plotly_chart(fig1, use_container_width=True)
+
+        # Kampanyasız tahmini hesapla
+        kampanyasiz_revenue = []
+        for _, row in enumerate(kampanya["products"]):
+            try:
+                base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
+                base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
+                daily_sale = base_price * base_sales
+                kampanyasiz_revenue.append(round(daily_sale, 2))
+            except:
+                kampanyasiz_revenue.append(0)
+
+        kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
+
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanyasiz_toplam,
+            mode='lines+markers',
+            name='Kampanyasız',
+            line=dict(color='orange', dash='dot')
+        ))
+        fig2.update_layout(
+            title="Kampanya Uygulanmasaydı: Tahmini Günlük Ciro",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=300,
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+
