@@ -134,34 +134,41 @@ else:
         campaigns = []
         duration_days = 5
 
-        # Farklı kurallara göre kampanyalar oluştur
-        conditions = [
-            (df["stok_miktarı"] > 100) & (df["satış_hızı"] < 1),
-            (df["tıklama_satış_oranı"] < 0.05) & (df["kategori_dönüşüm_oranı"] > 0.1),
-            (df["ürün_yaşı"] > 90) & (df["stok_miktarı"] > 50)
-        ]
-        names = ["Stok Temelli Kampanya", "Düşük Dönüşüm Odaklı", "Yaşlı Ürünleri Hızlandır"]
-        reasons = [
-            "Stok fazlası olup satışı yavaş olan ürünleri eritmek için oluşturuldu.",
-            "Tıklama oranı yüksek ama dönüşüm düşük ürünleri harekete geçirmek için önerildi.",
-            "Uzun süredir satılmayan ürünlerin stok maliyetini azaltmak hedeflenmiştir."
-        ]
-        
-        # 🔽 Yeni eklenen kampanyalar
-        conditions += [
-            (df["stok_miktarı"] < 20) & (df["satış_hızı"] < 1),
-            (df["beden_bulunurluğu_oranı"] < 0.3)
-        ]
-        
-        names += [
-            "Düşük Stoklu Ürünler için Fırsat Kuponu",
-            "Kırık Beden Ürünleri Hızlandır"
-        ]
-        
-        reasons += [
-            "Stok seviyesi azalmış ve satışı yavaşlayan ürünler için kupon bazlı fırsat sunulması önerilir.",
-            "Beden çeşitliliği azalmış (kırık beden) ürünler için stok eritme kampanyası önerilmiştir."
-        ]
+    # Farklı kurallara göre kampanyalar oluştur
+conditions = [
+    (df["stok_miktarı"] > 100) & (df["satış_hızı"] < 1),
+    (df["tıklama_satış_oranı"] < 0.05) & (df["kategori_dönüşüm_oranı"] > 0.1),
+    (df["ürün_yaşı"] > 90) & (df["stok_miktarı"] > 50)
+]
+
+names = [
+    "📦 Stok Temelli Kampanya",
+    "📉 Düşük Dönüşüm Odaklı",
+    "⏳ Yaşlı Ürünleri Hızlandır"
+]
+
+reasons = [
+    "Stok fazlası olup satışı yavaş olan ürünleri eritmek için oluşturuldu.",
+    "Tıklama oranı yüksek ama dönüşüm düşük ürünleri harekete geçirmek için önerildi.",
+    "Uzun süredir satılmayan ürünlerin stok maliyetini azaltmak hedeflenmiştir."
+]
+
+# 🔽 Yeni eklenen kampanyalar
+conditions += [
+    (df["stok_miktarı"] < 20) & (df["satış_hızı"] < 1),
+    (df["beden_bulunurluğu_oranı"] < 0.3)
+]
+
+names += [
+    "🟡 Düşük Stoklu Ürünler için Fırsat Kuponu",
+    "🔵 Kırık Beden Ürünleri Hızlandır"
+]
+
+reasons += [
+    "Stok seviyesi azalmış ve satışı yavaşlayan ürünler için kupon bazlı fırsat sunulması önerilir.",
+    "Beden çeşitliliği azalmış (kırık beden) ürünler için stok eritme kampanyası önerilmiştir."
+]
+
         
         for cond, name, reason in zip(conditions, names, reasons):
             subset = df[cond]
