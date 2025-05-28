@@ -146,7 +146,23 @@ else:
             "Tıklama oranı yüksek ama dönüşüm düşük ürünleri harekete geçirmek için önerildi.",
             "Uzun süredir satılmayan ürünlerin stok maliyetini azaltmak hedeflenmiştir."
         ]
-
+        
+        # 🔽 Yeni eklenen kampanyalar
+        conditions += [
+            (df["stok_miktarı"] < 20) & (df["satış_hızı"] < 1),
+            (df["beden_bulunurluğu_oranı"] < 0.3)
+        ]
+        
+        names += [
+            "Düşük Stoklu Ürünler için Fırsat Kuponu",
+            "Kırık Beden Ürünleri Hızlandır"
+        ]
+        
+        reasons += [
+            "Stok seviyesi azalmış ve satışı yavaşlayan ürünler için kupon bazlı fırsat sunulması önerilir.",
+            "Beden çeşitliliği azalmış (kırık beden) ürünler için stok eritme kampanyası önerilmiştir."
+        ]
+        
         for cond, name, reason in zip(conditions, names, reasons):
             subset = df[cond]
             if len(subset) < 5:
