@@ -217,7 +217,6 @@ def generate_campaigns(df):
     return campaigns
 
 # PART 3 – Kampanya Dashboardu
-if show_dashboard:
 @st.cache_data
 def kampanyalari_getir():
     return generate_campaigns(veri)
