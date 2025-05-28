@@ -80,7 +80,7 @@ if not show_dashboard:
     ozellik_satiri("Sepette Bırakılma Oranı", f"%{round(secili_urun['sepette_bırakılma_oranı']*100)}")
 
     st.markdown("### 🤖 Kaira'dan Öneri Al")
- if st.button("💡 Ürün İçin Tavsiye Al"):
+    if st.button("💡 Ürün İçin Tavsiye Al"):
         with st.spinner("Kaira düşünüyor..."):
             prompt = f"""
             Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
@@ -124,6 +124,7 @@ if not show_dashboard:
                 st.markdown(result)
             except Exception as e:
                 st.error("Bir hata oluştu. Lütfen tekrar deneyin.")
+
 
 # Kampanya üretim fonksiyonu
 # PART 2
