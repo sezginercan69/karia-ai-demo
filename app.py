@@ -32,5 +32,5 @@ if sayfa == "Anasayfa":
     st.markdown("### Devam etmek için sol üstten **Demo** sayfasını seçin.")
 
 # Demo
-elif sayfa == "Demo":
+elif sayfa == "Akıllı Kampanya Analizi":
     exec(open("demo.py").read())
