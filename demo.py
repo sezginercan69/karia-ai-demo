@@ -218,7 +218,12 @@ def generate_campaigns(df):
 
 # PART 3 – Kampanya Dashboardu
 if show_dashboard:
-    kampanyalar = generate_campaigns(veri)
+    @st.cache_data
+def kampanyalari_getir():
+    return generate_campaigns(veri)
+
+if show_dashboard:
+    kampanyalar = kampanyalari_getir()
 
     if not kampanyalar:
         st.info("Şu anda anlamlı bir kampanya fırsatı bulunamadı.")
