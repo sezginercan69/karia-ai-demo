@@ -9,7 +9,7 @@ sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Demo"])
 # Anasayfa
 if sayfa == "Anasayfa":
     st.video("Kaira.mp4")  # Video dosyasını göster
-    st.title("📦 Karia – Akıllı Kampanya Asistanı")
+    st.title("Kaira – Fiyatlandırma ve Kampanya Öneri Asistanı")
 
     st.markdown("""
     Hoş geldiniz!
