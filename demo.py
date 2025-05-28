@@ -217,7 +217,17 @@ else:
         kampanya_isimleri = [c["title"] for c in kampanyalar]
         secilen = st.selectbox("Bir kampanya seçin:", kampanya_isimleri)
         kampanya = next(c for c in kampanyalar if c["title"] == secilen)
+kampanyasiz_revenue = []
+for _, row in enumerate(kampanya["products"]):
+    try:
+        base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
+        base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
+        daily_sale = base_price * base_sales
+        kampanyasiz_revenue.append(round(daily_sale, 2))
+    except:
+        kampanyasiz_revenue.append(0)
 
+kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
         st.markdown(f"**📦 {kampanya['title']}**")
         st.write(kampanya['reason'])
         st.write(f"📅 Süre: {kampanya['duration_days']} gün")
@@ -235,18 +245,6 @@ else:
 
         st.subheader("📊 Günlük Ciro Tahmini")
 
-# Kampanyasız tahmini hesapla
-kampanyasiz_revenue = []
-for _, row in enumerate(kampanya["products"]):
-    try:
-        base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
-        base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
-        daily_sale = base_price * base_sales
-        kampanyasiz_revenue.append(round(daily_sale, 2))
-    except:
-        kampanyasiz_revenue.append(0)
-
-kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
 # Yeni birleşik grafik
 fig = go.Figure()
 
