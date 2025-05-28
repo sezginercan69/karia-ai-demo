@@ -41,6 +41,7 @@ if not uploaded_file:
     st.warning("Lütfen sol menüden bir ürün dosyası yükleyin.")
     st.stop()
 
+@st.cache_data
 def load_data(file):
     df = pd.read_excel(file, engine="openpyxl")
     df.columns = df.columns.astype(str)
@@ -216,7 +217,6 @@ def generate_campaigns(df):
     return campaigns
 
 # PART 3 – Kampanya Dashboardu
-@st.cache_data
 def kampanyalari_getir():
     return generate_campaigns(veri)
 
