@@ -58,6 +58,9 @@ model_secimi = st.sidebar.selectbox(
 )
 
 show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=False)
+st.sidebar.header("Ürün Seçimi")
+secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
+secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
 
 # Kampanya üretim fonksiyonu
 # PART 2
