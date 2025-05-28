@@ -10,7 +10,7 @@ openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
 # Sayfa yapılandırması
 st.image("karia_header.png", use_container_width=True)
-st.title("LCW AI Fiyatlandırma & Kampanya Asistanı")
+st.title("Kaira – Fiyatlandırma & Kampanya Öneri Asistanı")
 
 # Stil – Kutu tasarımı
 style = """
