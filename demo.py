@@ -147,7 +147,6 @@ else:
             "Uzun süredir satılmayan ürünlerin stok maliyetini azaltmak hedeflenmiştir."
         ]
 
-        
         for cond, name, reason in zip(conditions, names, reasons):
             subset = df[cond]
             if len(subset) < 5:
@@ -236,56 +235,49 @@ else:
 
         st.subheader("📊 Günlük Ciro Tahmini")
 
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanya["daily_revenue"],
+            mode='lines+markers',
+            name='Kampanya ile',
+            line=dict(color='green')
+        ))
+        fig1.update_layout(
+            title="Kampanyalı Günlük Ciro Dağılımı",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=300,
+            template="plotly_white"
+        )
+        st.plotly_chart(fig1, use_container_width=True)
 
-# Kampanyasız tahmini hesapla
-kampanyasiz_revenue = []
-for _, row in enumerate(kampanya["products"]):
-    try:
-        base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
-        base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
-        daily_sale = base_price * base_sales
-        kampanyasiz_revenue.append(round(daily_sale, 2))
-    except:
-        kampanyasiz_revenue.append(0)
+        # Kampanyasız tahmini hesapla
+        kampanyasiz_revenue = []
+        for _, row in enumerate(kampanya["products"]):
+            try:
+                base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
+                base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
+                daily_sale = base_price * base_sales
+                kampanyasiz_revenue.append(round(daily_sale, 2))
+            except:
+                kampanyasiz_revenue.append(0)
 
-kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
+        kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
 
-# Yeni birleşik grafik
-fig = go.Figure()
-
-fig.add_trace(go.Scatter(
-    x=list(range(1, kampanya["duration_days"] + 1)),
-    y=kampanya["daily_revenue"],
-    mode='lines+markers',
-    name='Kampanyalı',
-    line=dict(color='green')
-))
-
-fig.add_trace(go.Scatter(
-    x=list(range(1, kampanya["duration_days"] + 1)),
-    y=kampanyasiz_toplam,
-    mode='lines+markers',
-    name='Kampanyasız',
-    line=dict(color='orange', dash='dot')
-))
-
-fig.update_layout(
-    title="📊 Günlük Ciro Karşılaştırması (Kampanyalı vs. Kampanyasız)",
-    xaxis_title="Gün",
-    yaxis_title="Ciro (TL)",
-    height=400,
-    template="plotly_white"
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# Ciro farkı hesaplama ve gösterme
-kampanyali_toplam = sum(kampanya["daily_revenue"])
-kampanyasiz_toplam_genel = sum(kampanyasiz_toplam)
-fark_tl = kampanyali_toplam - kampanyasiz_toplam_genel
-fark_yuzde = (fark_tl / kampanyasiz_toplam_genel) * 100 if kampanyasiz_toplam_genel else 0
-
-st.markdown("### 💹 Toplam Ciro Farkı")
-st.write(f"**Fark (TL):** {round(fark_tl)} TL")
-st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
-
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanyasiz_toplam,
+            mode='lines+markers',
+            name='Kampanyasız',
+            line=dict(color='orange', dash='dot')
+        ))
+        fig2.update_layout(
+            title="Kampanya Uygulanmasaydı: Tahmini Günlük Ciro",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=300,
+            template="plotly_dark"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
