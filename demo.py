@@ -61,6 +61,56 @@ show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=F
 st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
+if not show_dashboard:
+    st.subheader(f"🧾 Seçilen Ürün Bilgileri – {secili_urun['ürün_ismi']}")
+    ozellik_satiri("Mevcut Fiyat", f"{secili_urun['mevcut_fiyat']} TL")
+    ozellik_satiri("Stok Miktarı", secili_urun["stok_miktarı"])
+    ozellik_satiri("Satış Hızı", secili_urun["satış_hızı"])
+    ozellik_satiri("Ürün Yaşı", f"{secili_urun['ürün_yaşı']} gün")
+    ozellik_satiri("Tıklama/Satış Oranı", f"%{round(secili_urun['tıklama_satış_oranı'] * 100, 2)}")
+    ozellik_satiri("Kategori Dönüşüm Oranı", f"%{round(secili_urun['kategori_dönüşüm_oranı'] * 100, 2)}")
+    ozellik_satiri("Ürün Maliyeti", f"{secili_urun['ürün_maliyeti']} TL")
+    ozellik_satiri("Beden Bulunurluğu Oranı", f"%{round(secili_urun['beden_bulunurluğu_oranı'] * 100, 1)}")
+
+    st.markdown("### 🤖 Kaira'dan Öneri Al")
+    if st.button("💡 Ürün İçin Tavsiye Al"):
+        with st.spinner("Kaira düşünüyor..."):
+            prompt = f"""
+            Aşağıdaki ürün için satışları artırmaya yönelik öneriler sun. Fiyat indirimi, kampanya önerisi veya stok yönetimi olabilir.
+
+            Ürün Bilgileri:
+            - Adı: {secili_urun['ürün_ismi']}
+            - Fiyat: {secili_urun['mevcut_fiyat']} TL
+            - Satış Hızı: {secili_urun['satış_hızı']}
+            - Stok Miktarı: {secili_urun['stok_miktarı']}
+            - Ürün Yaşı: {secili_urun['ürün_yaşı']} gün
+            - Tıklama/Satış Oranı: %{round(secili_urun['tıklama_satış_oranı'] * 100, 2)}
+            - Kategori Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı'] * 100, 2)}
+            - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
+            - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı'] * 100, 1)}
+
+            Türkçe yaz ve önerileri maddeler halinde sun.
+            """
+
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {openrouter_api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": model_secimi,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+                timeout=30
+            )
+
+            try:
+                result = response.json()["choices"][0]["message"]["content"]
+                st.success("Kaira'nın Önerisi:")
+                st.markdown(result)
+            except Exception as e:
+                st.error("Bir hata oluştu. Lütfen tekrar deneyin.")
 
 # Kampanya üretim fonksiyonu
 # PART 2
