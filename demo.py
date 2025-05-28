@@ -80,30 +80,30 @@ if not show_dashboard:
     ozellik_satiri("Sepette Bırakılma Oranı", f"%{round(secili_urun['sepette_bırakılma_oranı']*100)}")
 
     st.markdown("### 🤖 Kaira'dan Öneri Al")
-    if st.button("💡 Ürün İçin Tavsiye Al"):
+ if st.button("💡 Ürün İçin Tavsiye Al"):
         with st.spinner("Kaira düşünüyor..."):
-    prompt = f"""
-    Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
-    1. Eğer gerekliyse yeni bir satış fiyatı öner, gerek değilse mevcut fiyatı koru.
-    2. Uygun bir kampanya önerisi sun (eğer gerekiyorsa).
-    3. Tüm kararlarının nedenlerini kısa ve net şekilde açıkla.
+            prompt = f"""
+            Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
+            1. Eğer gerekliyse yeni bir satış fiyatı öner, gerek değilse mevcut fiyatı koru.
+            2. Uygun bir kampanya önerisi sun (eğer gerekiyorsa).
+            3. Tüm kararlarının nedenlerini kısa ve net şekilde açıkla.
 
-    Ürün Bilgileri:
-    - Kategori: {secili_urun['kategori']}
-    - Mevcut Fiyat: {secili_urun['mevcut_fiyat']} TL
-    - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
-    - Stok: {secili_urun['stok_miktarı']}
-    - Satış Hızı: {secili_urun['satış_hızı']} / gün
-    - Yaş: {secili_urun['ürün_yaşı']} gün
-    - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı']*100)}
-    - Rakip Fiyat: {secili_urun['rakip_fiyat']} TL
-    - Hedef Kârlılık: %{round(secili_urun['hedef_karlılık_oranı']*100)}
-    - Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı']*100)}
-    - Tıklama / Satış Oranı: %{round(secili_urun['tıklama_satış_oranı']*100)}
-    - Yaşam Döngüsü: {secili_urun['yaşam_döngüsü']}
-    - İade Oranı: %{round(secili_urun['iade_oranı']*100)}
-    - Sepette Bırakılma Oranı: %{round(secili_urun['sepette_bırakılma_oranı']*100)}
-    """
+            Ürün Bilgileri:
+            - Kategori: {secili_urun['kategori']}
+            - Mevcut Fiyat: {secili_urun['mevcut_fiyat']} TL
+            - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
+            - Stok: {secili_urun['stok_miktarı']}
+            - Satış Hızı: {secili_urun['satış_hızı']} / gün
+            - Yaş: {secili_urun['ürün_yaşı']} gün
+            - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı']*100)}
+            - Rakip Fiyat: {secili_urun['rakip_fiyat']} TL
+            - Hedef Kârlılık: %{round(secili_urun['hedef_karlılık_oranı']*100)}
+            - Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı']*100)}
+            - Tıklama / Satış Oranı: %{round(secili_urun['tıklama_satış_oranı']*100)}
+            - Yaşam Döngüsü: {secili_urun['yaşam_döngüsü']}
+            - İade Oranı: %{round(secili_urun['iade_oranı']*100)}
+            - Sepette Bırakılma Oranı: %{round(secili_urun['sepette_bırakılma_oranı']*100)}
+            """
 
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
