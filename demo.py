@@ -10,7 +10,7 @@ openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
 
 # Sayfa yapılandırması
 st.image("karia_header.png", use_container_width=True)
-st.title("Kaira – Fiyatlandırma & Kampanya Öneri Asistanı")
+st.title("LCW AI Fiyatlandırma & Kampanya Asistanı")
 
 # Stil – Kutu tasarımı
 style = """
@@ -281,4 +281,3 @@ else:
             template="plotly_dark"
         )
         st.plotly_chart(fig2, use_container_width=True)
-
