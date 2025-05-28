@@ -8,8 +8,7 @@ sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Demo"])
 
 # Anasayfa
 if sayfa == "Anasayfa":
-video_path = "Kaira.mp4"
-st.video(video_path)
+    st.video("Kaira.mp4")  # Video dosyasını göster
     st.title("📦 Karia – Akıllı Kampanya Asistanı")
 
     st.markdown("""
