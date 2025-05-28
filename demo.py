@@ -217,17 +217,7 @@ else:
         kampanya_isimleri = [c["title"] for c in kampanyalar]
         secilen = st.selectbox("Bir kampanya seçin:", kampanya_isimleri)
         kampanya = next(c for c in kampanyalar if c["title"] == secilen)
-kampanyasiz_revenue = []
-for _, row in enumerate(kampanya["products"]):
-    try:
-        base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
-        base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
-        daily_sale = base_price * base_sales
-        kampanyasiz_revenue.append(round(daily_sale, 2))
-    except:
-        kampanyasiz_revenue.append(0)
 
-kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
         st.markdown(f"**📦 {kampanya['title']}**")
         st.write(kampanya['reason'])
         st.write(f"📅 Süre: {kampanya['duration_days']} gün")
@@ -244,42 +234,55 @@ kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05
         import plotly.graph_objects as go
 
         st.subheader("📊 Günlük Ciro Tahmini")
+        # Kampanyasız tahmini hesapla
+        kampanyasiz_revenue = []
+        for _, row in enumerate(kampanya["products"]):
+            try:
+                base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
+                base_sales = random.uniform(0.8, 1.2)  # varsayılan satış hızı x çarpanı
+                daily_sale = base_price * base_sales
+                kampanyasiz_revenue.append(round(daily_sale, 2))
+            except:
+                kampanyasiz_revenue.append(0)
+        
+        kampanyasiz_toplam = [round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2) for _ in range(kampanya["duration_days"])]
 
-# Yeni birleşik grafik
-fig = go.Figure()
+        # Yeni birleşik grafik
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanya["daily_revenue"],
+            mode='lines+markers',
+            name='Kampanyalı',
+            line=dict(color='green')
+        ))
+        
+        fig.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanyasiz_toplam,
+            mode='lines+markers',
+            name='Kampanyasız',
+            line=dict(color='orange', dash='dot')
+        ))
+        
+        fig.update_layout(
+            title="📊 Günlük Ciro Karşılaştırması (Kampanyalı vs. Kampanyasız)",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=400,
+            template="plotly_white"
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
 
-fig.add_trace(go.Scatter(
-    x=list(range(1, kampanya["duration_days"] + 1)),
-    y=kampanya["daily_revenue"],
-    mode='lines+markers',
-    name='Kampanyalı',
-    line=dict(color='green')
-))
-
-fig.add_trace(go.Scatter(
-    x=list(range(1, kampanya["duration_days"] + 1)),
-    y=kampanyasiz_toplam,
-    mode='lines+markers',
-    name='Kampanyasız',
-    line=dict(color='orange', dash='dot')
-))
-
-fig.update_layout(
-    title="📊 Günlük Ciro Karşılaştırması (Kampanyalı vs. Kampanyasız)",
-    xaxis_title="Gün",
-    yaxis_title="Ciro (TL)",
-    height=400,
-    template="plotly_white"
-)
-
-st.plotly_chart(fig, use_container_width=True)
-# Ciro farkı hesaplama ve gösterme
-kampanyali_toplam = sum(kampanya["daily_revenue"])
-kampanyasiz_toplam_genel = sum(kampanyasiz_toplam)
-fark_tl = kampanyali_toplam - kampanyasiz_toplam_genel
-fark_yuzde = (fark_tl / kampanyasiz_toplam_genel) * 100 if kampanyasiz_toplam_genel else 0
-
-st.markdown("### 💹 Toplam Ciro Farkı")
-st.write(f"**Fark (TL):** {round(fark_tl)} TL")
-st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
+        # Ciro farkı hesaplama ve gösterme
+    kampanyali_toplam = sum(kampanya["daily_revenue"])
+    kampanyasiz_toplam_genel = sum(kampanyasiz_toplam)
+    fark_tl = kampanyali_toplam - kampanyasiz_toplam_genel
+    fark_yuzde = (fark_tl / kampanyasiz_toplam_genel) * 100 if kampanyasiz_toplam_genel else 0
+    
+    st.markdown("### 💹 Toplam Ciro Farkı")
+    st.write(f"**Fark (TL):** {round(fark_tl)} TL")
+    st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
 
