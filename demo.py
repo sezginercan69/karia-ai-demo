@@ -62,35 +62,48 @@ st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
 if not show_dashboard:
+    # Ürün bilgisi gösterimi
     st.subheader(f"🧾 Seçilen Ürün Bilgileri – {secili_urun['ürün_ismi']}")
+    ozellik_satiri("Kategori", secili_urun['kategori'])
     ozellik_satiri("Mevcut Fiyat", f"{secili_urun['mevcut_fiyat']} TL")
-    ozellik_satiri("Stok Miktarı", secili_urun["stok_miktarı"])
-    ozellik_satiri("Satış Hızı", secili_urun["satış_hızı"])
-    ozellik_satiri("Ürün Yaşı", f"{secili_urun['ürün_yaşı']} gün")
-    ozellik_satiri("Tıklama/Satış Oranı", f"%{round(secili_urun['tıklama_satış_oranı'] * 100, 2)}")
-    ozellik_satiri("Kategori Dönüşüm Oranı", f"%{round(secili_urun['kategori_dönüşüm_oranı'] * 100, 2)}")
     ozellik_satiri("Ürün Maliyeti", f"{secili_urun['ürün_maliyeti']} TL")
-    ozellik_satiri("Beden Bulunurluğu Oranı", f"%{round(secili_urun['beden_bulunurluğu_oranı'] * 100, 1)}")
+    ozellik_satiri("Stok Miktarı", secili_urun['stok_miktarı'])
+    ozellik_satiri("Satış Hızı", f"{secili_urun['satış_hızı']} / gün")
+    ozellik_satiri("Ürün Yaşı", f"{secili_urun['ürün_yaşı']} gün")
+    ozellik_satiri("Beden Bulunurluğu", f"%{round(secili_urun['beden_bulunurluğu_oranı']*100)}")
+    ozellik_satiri("Rakip Fiyat", f"{secili_urun['rakip_fiyat']} TL")
+    ozellik_satiri("Hedef Kârlılık", f"%{round(secili_urun['hedef_karlılık_oranı']*100)}")
+    ozellik_satiri("Dönüşüm Oranı", f"%{round(secili_urun['kategori_dönüşüm_oranı']*100)}")
+    ozellik_satiri("Tıklama / Satış Oranı", f"%{round(secili_urun['tıklama_satış_oranı']*100)}")
+    ozellik_satiri("Yaşam Döngüsü", secili_urun['yaşam_döngüsü'])
+    ozellik_satiri("İade Oranı", f"%{round(secili_urun['iade_oranı']*100)}")
+    ozellik_satiri("Sepette Bırakılma Oranı", f"%{round(secili_urun['sepette_bırakılma_oranı']*100)}")
 
     st.markdown("### 🤖 Kaira'dan Öneri Al")
     if st.button("💡 Ürün İçin Tavsiye Al"):
         with st.spinner("Kaira düşünüyor..."):
-            prompt = f"""
-            Aşağıdaki ürün için satışları artırmaya yönelik öneriler sun. Fiyat indirimi, kampanya önerisi veya stok yönetimi olabilir.
+    prompt = f"""
+    Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
+    1. Eğer gerekliyse yeni bir satış fiyatı öner, gerek değilse mevcut fiyatı koru.
+    2. Uygun bir kampanya önerisi sun (eğer gerekiyorsa).
+    3. Tüm kararlarının nedenlerini kısa ve net şekilde açıkla.
 
-            Ürün Bilgileri:
-            - Adı: {secili_urun['ürün_ismi']}
-            - Fiyat: {secili_urun['mevcut_fiyat']} TL
-            - Satış Hızı: {secili_urun['satış_hızı']}
-            - Stok Miktarı: {secili_urun['stok_miktarı']}
-            - Ürün Yaşı: {secili_urun['ürün_yaşı']} gün
-            - Tıklama/Satış Oranı: %{round(secili_urun['tıklama_satış_oranı'] * 100, 2)}
-            - Kategori Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı'] * 100, 2)}
-            - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
-            - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı'] * 100, 1)}
-
-            Türkçe yaz ve önerileri maddeler halinde sun.
-            """
+    Ürün Bilgileri:
+    - Kategori: {secili_urun['kategori']}
+    - Mevcut Fiyat: {secili_urun['mevcut_fiyat']} TL
+    - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
+    - Stok: {secili_urun['stok_miktarı']}
+    - Satış Hızı: {secili_urun['satış_hızı']} / gün
+    - Yaş: {secili_urun['ürün_yaşı']} gün
+    - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı']*100)}
+    - Rakip Fiyat: {secili_urun['rakip_fiyat']} TL
+    - Hedef Kârlılık: %{round(secili_urun['hedef_karlılık_oranı']*100)}
+    - Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı']*100)}
+    - Tıklama / Satış Oranı: %{round(secili_urun['tıklama_satış_oranı']*100)}
+    - Yaşam Döngüsü: {secili_urun['yaşam_döngüsü']}
+    - İade Oranı: %{round(secili_urun['iade_oranı']*100)}
+    - Sepette Bırakılma Oranı: %{round(secili_urun['sepette_bırakılma_oranı']*100)}
+    """
 
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
