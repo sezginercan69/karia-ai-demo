@@ -29,7 +29,7 @@ if sayfa == "Anasayfa":
     st.success("🧠 Yapay zeka destekli karar önerileri")
     st.success("📈 ROI ve indirim oranı analizi")
     st.markdown("---")
-    st.markdown("### Devam etmek için sol üstten **Demo** sayfasını seçin.")
+    st.markdown("### Devam etmek için sol üstten **Akıllı Kampanya Analizi** sayfasını seçin.")
 
 # Demo
 elif sayfa == "Akıllı Kampanya Analizi":
