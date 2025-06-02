@@ -1,24 +1,34 @@
 import streamlit as st
 import pandas as pd
 
-def run(veri):
-    st.title("📦 Tedarik Planlama Asistanı")
+st.title("📦 Tedarik Planlama Asistanı")
 
-    st.markdown("Satış hızına ve stok miktarına göre ürünler için tedarik önerileri sunulmaktadır.")
+st.sidebar.header("Excel Yükle")
+uploaded_file = st.sidebar.file_uploader("Tedarik Analizi için Dosya Yükle (.xlsx)", type=["xlsx"])
 
-    kategori_listesi = veri["kategori"].dropna().unique()
-    secilen_kategori = st.sidebar.selectbox("Kategori seçin", kategori_listesi)
+if not uploaded_file:
+    st.warning("Lütfen tedarik verisini içeren Excel dosyasını yükleyin.")
+    st.stop()
 
-    filtrelenmis = veri[veri["kategori"] == secilen_kategori]
+df = pd.read_excel(uploaded_file, engine="openpyxl")
+df.columns = df.columns.astype(str)
 
-    for _, row in filtrelenmis.iterrows():
-        urun = row["ürün_ismi"]
-        stok = row["stok_miktarı"]
-        hiz = row["satış_hızı"]
+# Tedarik segmenti belirle
+def tedarik_segmenti(row):
+    if row['stok_miktarı'] < 50 and row['satış_adedi'] > 500:
+        return "1️⃣ Yüksek Öncelikli Tedarik"
+    elif 50 <= row['stok_miktarı'] < 150 and 200 < row['satış_adedi'] <= 500:
+        return "2️⃣ Orta Öncelikli Tedarik"
+    elif row['stok_miktarı'] >= 150 or row['satış_adedi'] <= 200:
+        return "3️⃣ Düşük Öncelikli Tedarik"
+    else:
+        return "🟡 Değerlendiriliyor"
 
-        if hiz > 0:
-            gun_kaldi = round(stok / hiz)
-            durum = "🚨 Tedarik Gerekiyor" if gun_kaldi < 15 else "✅ Stok Yeterli"
-            st.markdown(f"**{urun}** – Tahmini stok süresi: {gun_kaldi} gün | **{durum}**")
-        else:
-            st.markdown(f"**{urun}** – Satış verisi yetersiz, analiz yapılamıyor.")
+df["tedarik_onceligi"] = df.apply(tedarik_segmenti, axis=1)
+
+# Segmentleri sırayla göster
+for segment in ["1️⃣ Yüksek Öncelikli Tedarik", "2️⃣ Orta Öncelikli Tedarik", "3️⃣ Düşük Öncelikli Tedarik"]:
+    st.subheader(segment)
+    filtreli = df[df["tedarik_onceligi"] == segment]
+    st.write(f"Toplam: {len(filtreli)} ürün")
+    st.dataframe(filtreli)
