@@ -30,8 +30,9 @@ def tedarik_segmenti(row):
 df["tedarik_onceligi"] = df.apply(tedarik_segmenti, axis=1)
 
 # Segmentleri sırayla göster
-for segment in ["1️⃣ Yüksek Öncelikli Tedarik", "2️⃣ Orta Öncelikli Tedarik", "3️⃣ Düşük Öncelikli Tedarik"]:
+for segment in ["🔴 Yüksek Öncelikli Tedarik", "🟠 Orta Öncelikli Tedarik", "🟢 Düşük Öncelikli Tedarik"]:
     st.subheader(segment)
     filtreli = df[df["tedarik_onceligi"] == segment]
     st.write(f"Toplam: {len(filtreli)} ürün")
     st.dataframe(filtreli)
+
