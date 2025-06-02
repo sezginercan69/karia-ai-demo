@@ -36,3 +36,24 @@ for segment in ["🔴 Yüksek Öncelikli Tedarik", "🟠 Orta Öncelikli Tedarik
     st.write(f"Toplam: {len(filtreli)} ürün")
     st.dataframe(filtreli)
 
+import io
+
+# Segment listesi ve adları
+segment_list = [
+    ("🔴 Yüksek Öncelikli Tedarik", "yüksek_oncelikli.xlsx"),
+    ("🟠 Orta Öncelikli Tedarik", "orta_oncelikli.xlsx"),
+    ("🟢 Düşük Öncelikli Tedarik", "dusuk_oncelikli.xlsx")
+]
+
+# Her segment için ayrı indirme butonu
+for segment_adi, dosya_adi in segment_list:
+    segment_df = df[df["tedarik_onceligi"] == segment_adi]
+    if not segment_df.empty:
+        buffer = io.BytesIO()
+        segment_df.to_excel(buffer, index=False, engine="openpyxl")
+        st.download_button(
+            label=f"{segment_adi} Excel İndir",
+            data=buffer.getvalue(),
+            file_name=dosya_adi,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
