@@ -14,14 +14,18 @@ df = pd.read_excel(uploaded_file, engine="openpyxl")
 df.columns = df.columns.astype(str)
 
 def tedarik_segmenti(row):
-    if row['stok_miktarı'] < 50 and row['satış_adedi'] > 500:
-        return "1️⃣ Yüksek Öncelikli Tedarik"
-    elif 50 <= row['stok_miktarı'] < 150 and 200 < row['satış_adedi'] <= 500:
-        return "2️⃣ Orta Öncelikli Tedarik"
-    elif row['stok_miktarı'] >= 150 or row['satış_adedi'] <= 200:
-        return "3️⃣ Düşük Öncelikli Tedarik"
+    yas = max(row["ürün_yaşı"], 1)
+    stok = row["stok_miktarı"]
+    satis_adedi = row["satış_adedi"]
+
+    gunluk_satis = satis_adedi / yas
+
+    if gunluk_satis > 1.5 and stok < 50:
+        return "🔴 Yüksek Öncelikli Tedarik"
+    elif gunluk_satis > 0.7 and stok < 100:
+        return "🟠 Orta Öncelikli Tedarik"
     else:
-        return "🟡 Değerlendiriliyor"
+        return "🟢 Düşük Öncelikli Tedarik"
 
 df["tedarik_onceligi"] = df.apply(tedarik_segmenti, axis=1)
 
