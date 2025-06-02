@@ -13,7 +13,6 @@ if not uploaded_file:
 df = pd.read_excel(uploaded_file, engine="openpyxl")
 df.columns = df.columns.astype(str)
 
-# Tedarik segmenti belirle
 def tedarik_segmenti(row):
     if row['stok_miktarı'] < 50 and row['satış_adedi'] > 500:
         return "1️⃣ Yüksek Öncelikli Tedarik"
