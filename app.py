@@ -38,18 +38,14 @@ elif sayfa == "Akıllı Kampanya Analizi":
 
 # Tedarik Planlama Asistanı
 elif sayfa == "Tedarik Planlama Asistanı":
-    import pandas as pd  # Eğer zaten dosyada yoksa başta bir kere yeter
-    st.header("📦 Tedarik Planlama Asistanı")
-
-    uploaded_file = st.file_uploader("Tedarik verisini yükleyin (.xlsx)", type=["xlsx"])
-
+    # Excel verisini tekrar yükle
+    uploaded_file = st.sidebar.file_uploader("Ürün Excel Dosyasını Yükleyin (.xlsx)", type=["xlsx"])
     if uploaded_file:
-        try:
-            df = pd.read_excel(uploaded_file, engine="openpyxl")
-            st.success("Dosya başarıyla yüklendi!")
-            st.dataframe(df.head())  # İstersen sil veya gizle
-        except Exception as e:
-            st.error(f"Dosya okunurken hata oluştu: {e}")
+        df = pd.read_excel(uploaded_file, engine="openpyxl")
+        df.columns = df.columns.astype(str)
+        df = df.dropna(subset=["ürün_ismi"])
+        df["ürün_ismi"] = df["ürün_ismi"].astype(str)
+        tedarik.run(df)
     else:
-        st.warning("Lütfen bir dosya yükleyin.")
+        st.warning("Lütfen bir Excel dosyası yükleyin.")
 
