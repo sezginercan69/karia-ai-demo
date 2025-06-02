@@ -1,10 +1,11 @@
 import streamlit as st
 import os
+import tedarik
 
 st.set_page_config(page_title="LCW AI Demo", layout="wide")
 
 # Sayfa seçimi
-sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Akıllı Kampanya Analizi"])
+sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Akıllı Kampanya Analizi", "Tedarik Planlama Asistanı"])
 
 # Anasayfa
 if sayfa == "Anasayfa":
@@ -34,3 +35,16 @@ if sayfa == "Anasayfa":
 # Demo
 elif sayfa == "Akıllı Kampanya Analizi":
     exec(open("demo.py").read())
+
+# Tedarik Planlama Asistanı
+elif sayfa == "Tedarik Planlama Asistanı":
+    # Excel verisini tekrar yükle
+    uploaded_file = st.sidebar.file_uploader("Ürün Excel Dosyasını Yükleyin (.xlsx)", type=["xlsx"])
+    if uploaded_file:
+        df = pd.read_excel(uploaded_file, engine="openpyxl")
+        df.columns = df.columns.astype(str)
+        df = df.dropna(subset=["ürün_ismi"])
+        df["ürün_ismi"] = df["ürün_ismi"].astype(str)
+        tedarik.run(df)
+    else:
+        st.warning("Lütfen bir Excel dosyası yükleyin.")
