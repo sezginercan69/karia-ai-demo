@@ -70,6 +70,7 @@ model_secimi = st.sidebar.selectbox(
 )
 
 show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=False)
+show_segment_dashboard = st.sidebar.checkbox("👥 Müşteri Segment Kampanyalarını Göster", value=False)
 st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
@@ -280,32 +281,8 @@ def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görünt�
 def kampanyalari_getir():
     return generate_campaigns(veri)
 
-if show_dashboard:
+if show_dashboard and not show_segment_dashboard:
     kampanyalar = kampanyalari_getir()
-
-    st.markdown("---")
-    st.markdown("## 👥 Kullanıcı Bazlı Segment Kampanyaları")
-    kullanici_kampanya_goster = st.checkbox("📌 Kullanıcı Segmentlerine Göre Kampanya Önerilerini Göster")
-
-    if kullanici_kampanya_goster and kullanici_verisi is not None:
-        segmentler = generate_user_segments(kullanici_verisi, veri)
-
-        if segmentler.empty:
-            st.info("Anlamlı kullanıcı segmenti bulunamadı.")
-        else:
-            for _, row in segmentler.iterrows():
-                kategori = row["kategori"]
-                kullanıcı_sayısı = row["kullanıcı_sayısı"]
-                görüntüleme = row["toplam_görüntüleme"]
-
-                st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
-                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
-                if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
-                    with st.spinner("Kaira düşünüyor..."):
-                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
-                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
-                        st.markdown(öneri)
-
 
     if not kampanyalar:
         st.info("Şu anda anlamlı bir kampanya fırsatı bulunamadı.")
@@ -326,7 +303,6 @@ if show_dashboard:
             for p in kampanya["products"]:
                 st.write(f"- {p['name']} | {p['current_price']} TL → {p['new_price']} TL")
 
-        # Kampanyasız tahmini hesapla
         kampanyasiz_revenue = []
         for _, row in enumerate(kampanya["products"]):
             try:
@@ -342,40 +318,24 @@ if show_dashboard:
             for _ in range(kampanya["duration_days"])
         ]
 
-        # Grafik
-        fig = go.Figure()
+elif show_segment_dashboard and not show_dashboard:
+    st.markdown("## 👥 Kullanıcı Bazlı Segment Kampanyaları")
+    kullanici_verisi = load_user_interactions(uploaded_file)
+    segmentler = generate_user_segments(kullanici_verisi, veri)
 
-        fig.add_trace(go.Scatter(
-            x=list(range(1, kampanya["duration_days"] + 1)),
-            y=kampanya["daily_revenue"],
-            mode='lines+markers',
-            name='Kampanyalı',
-            line=dict(color='green')
-        ))
+    if segmentler.empty:
+        st.info("Anlamlı kullanıcı segmenti bulunamadı.")
+    else:
+        for _, row in segmentler.iterrows():
+            kategori = row["kategori"]
+            kullanıcı_sayısı = row["kullanıcı_sayısı"]
+            görüntüleme = row["toplam_görüntüleme"]
 
-        fig.add_trace(go.Scatter(
-            x=list(range(1, kampanya["duration_days"] + 1)),
-            y=kampanyasiz_toplam,
-            mode='lines+markers',
-            name='Kampanyasız',
-            line=dict(color='orange', dash='dot')
-        ))
-
-        fig.update_layout(
-            title="📊 Günlük Ciro Karşılaştırması (Kampanyalı vs. Kampanyasız)",
-            xaxis_title="Gün",
-            yaxis_title="Ciro (TL)",
-            height=400,
-            template="plotly_white"
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-        kampanyali_toplam = sum(kampanya["daily_revenue"])
-        kampanyasiz_toplam_genel = sum(kampanyasiz_toplam)
-        fark_tl = kampanyali_toplam - kampanyasiz_toplam_genel
-        fark_yuzde = (fark_tl / kampanyasiz_toplam_genel) * 100 if kampanyasiz_toplam_genel else 0
-
-        st.markdown("### 💹 Toplam Ciro Farkı")
-        st.write(f"**Fark (TL):** {round(fark_tl)} TL")
-        st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
+            if kullanıcı_sayısı >= 200:
+                st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
+                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
+                if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
+                    with st.spinner("Kaira düşünüyor..."):
+                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
+                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
+                        st.markdown(öneri)
