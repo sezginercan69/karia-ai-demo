@@ -276,9 +276,9 @@ def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görünt�
     3. Estimate the expected increase in conversion rate and revenue impact.
 
     Please write the output in Turkish and structure it as follows:
-    - Kullanıcı Davranış Analizi
-    - Kampanya Önerisi
-    - Beklenen Etki (Dönüşüm oranı & Ciro artışı)
+    - Kullanıcı Davranış Analizi:
+    - Kampanya Önerisi:
+    - Beklenen Etki (Dönüşüm oranı & Ciro artışı):
     """
 
     response = requests.post(
