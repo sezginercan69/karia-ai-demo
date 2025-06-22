@@ -69,13 +69,21 @@ model_secimi = st.sidebar.selectbox(
     ["openai/gpt-3.5-turbo", "openai/gpt-4o-mini"]
 )
 
-show_dashboard = st.sidebar.checkbox("📊 Kampanya Dashboardu Göster", value=False)
-show_segment_dashboard = st.sidebar.checkbox("👥 Müşteri Segment Kampanyalarını Göster", value=False)
+st.sidebar.header("Kampanya Seçimi")
+
+kampanya_secimi = st.sidebar.radio(
+    "Bir kampanya ekranı seçin:",
+    ["Yok", "📊 Ürün Bazlı Kampanya Dashboardu", "👥 Müşteri Segment Kampanyaları"]
+)
+
+show_dashboard = kampanya_secimi == "📊 Ürün Bazlı Kampanya Dashboardu"
+show_segment_dashboard = kampanya_secimi == "👥 Müşteri Segment Kampanyaları"
+
 st.sidebar.header("Ürün Seçimi")
 secim = st.sidebar.selectbox("Bir ürün seçin:", veri["ürün_ismi"].unique())
 secili_urun = veri[veri["ürün_ismi"] == secim].iloc[0]
-if not show_dashboard:
-    # Ürün bilgisi gösterimi
+if not show_dashboard and not show_segment_dashboard:
+    # Ürün bilgisi gösterimi sadece hiçbir kampanya ekranı açık değilse gösterilsin
     st.subheader(f"🧾 Seçilen Ürün Bilgileri – {secili_urun['ürün_ismi']}")
     ozellik_satiri("Kategori", secili_urun['kategori'])
     ozellik_satiri("Mevcut Fiyat", f"{secili_urun['mevcut_fiyat']} TL")
