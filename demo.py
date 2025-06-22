@@ -403,7 +403,7 @@ elif show_segment_dashboard and not show_dashboard:
 
     if segmentler.empty:
         st.info("Anlamlı kullanıcı segmenti bulunamadı.")
-    else:
+      else:
         for _, row in segmentler.iterrows():
             kategori = row["kategori"]
             kullanıcı_sayısı = row["kullanıcı_sayısı"]
@@ -412,27 +412,29 @@ elif show_segment_dashboard and not show_dashboard:
             if kullanıcı_sayısı >= 200:
                 st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
                 st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
-        # Segment kullanıcılarını filtrele
-        merged = kullanici_verisi.merge(veri[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
-        segment_user_ids = merged[
-            (merged["kategori"] == kategori) &
-            (merged["action"] == "view")
-        ]["user_id"].unique()
 
-        segment_df = kullanici_verisi[kullanici_verisi["user_id"].isin(segment_user_ids)]
+                # Segment kullanıcılarını filtrele
+                merged = kullanici_verisi.merge(veri[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
+                segment_user_ids = merged[
+                    (merged["kategori"] == kategori) &
+                    (merged["action"] == "view")
+                ]["user_id"].unique()
 
-        # Excel/CSV butonu
-        st.download_button(
-            label=f"📥 '{kategori}' Segment Kullanıcılarını İndir",
-            data=segment_df.to_csv(index=False).encode("utf-8"),
-            file_name=f"segment_kullanicilar_{kategori}.csv",
-            mime="text/csv"
-        )
-                
+                segment_df = kullanici_verisi[kullanici_verisi["user_id"].isin(segment_user_ids)]
+
+                # Excel/CSV butonu
+                st.download_button(
+                    label=f"📥 '{kategori}' Segment Kullanıcılarını İndir",
+                    data=segment_df.to_csv(index=False).encode("utf-8"),
+                    file_name=f"segment_kullanicilar_{kategori}.csv",
+                    mime="text/csv"
+                )
+
                 if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
                     with st.spinner("Kaira düşünüyor..."):
                         öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
                         st.success("📌 Kampanya Önerisi ve Açıklaması:")
                         st.markdown(öneri)
+
 
 
