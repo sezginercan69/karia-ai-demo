@@ -326,29 +326,7 @@ if show_dashboard and not show_segment_dashboard:
             for _ in range(kampanya["duration_days"])
         ]
 
-elif show_segment_dashboard and not show_dashboard:
-    st.markdown("## 👥 Kullanıcı Bazlı Segment Kampanyaları")
-    kullanici_verisi = load_user_interactions(uploaded_file)
-    segmentler = generate_user_segments(kullanici_verisi, veri)
-
-    if segmentler.empty:
-        st.info("Anlamlı kullanıcı segmenti bulunamadı.")
-    else:
-        for _, row in segmentler.iterrows():
-            kategori = row["kategori"]
-            kullanıcı_sayısı = row["kullanıcı_sayısı"]
-            görüntüleme = row["toplam_görüntüleme"]
-
-            if kullanıcı_sayısı >= 200:
-                st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
-                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
-                if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
-                    with st.spinner("Kaira düşünüyor..."):
-                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
-                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
-                        st.markdown(öneri)
-
-        # Kampanyasız tahmini hesapla
+ # Kampanyasız tahmini hesapla
         kampanyasiz_revenue = []
         for _, row in enumerate(kampanya["products"]):
             try:
@@ -401,4 +379,28 @@ elif show_segment_dashboard and not show_dashboard:
         st.markdown("### 💹 Toplam Ciro Farkı")
         st.write(f"**Fark (TL):** {round(fark_tl)} TL")
         st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
+
+
+elif show_segment_dashboard and not show_dashboard:
+    st.markdown("## 👥 Kullanıcı Bazlı Segment Kampanyaları")
+    kullanici_verisi = load_user_interactions(uploaded_file)
+    segmentler = generate_user_segments(kullanici_verisi, veri)
+
+    if segmentler.empty:
+        st.info("Anlamlı kullanıcı segmenti bulunamadı.")
+    else:
+        for _, row in segmentler.iterrows():
+            kategori = row["kategori"]
+            kullanıcı_sayısı = row["kullanıcı_sayısı"]
+            görüntüleme = row["toplam_görüntüleme"]
+
+            if kullanıcı_sayısı >= 200:
+                st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
+                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
+                if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
+                    with st.spinner("Kaira düşünüyor..."):
+                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
+                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
+                        st.markdown(öneri)
+
 
