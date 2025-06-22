@@ -269,12 +269,12 @@ def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görünt�
     prompt = f"""
     The user segment below has shown interest in the '{segment_kategori}' category a total of {görüntüleme_sayısı} times.
     These users have viewed products, added them to their cart, or exited the product page, but none of them completed a purchase.
-    
+
     Based on this behavior:
     1. Analyze the potential reasons why they haven't converted yet,
     2. Propose a campaign strategy that could effectively convert this segment into customers,
     3. Estimate the expected increase in conversion rate and revenue impact.
-    
+
     Please write the output in Turkish and structure it as follows:
     - Kullanıcı Davranış Analizi
     - Kampanya Önerisi
