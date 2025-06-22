@@ -48,6 +48,18 @@ def load_data(file):
     df = df.dropna(subset=["ürün_ismi"])
     df["ürün_ismi"] = df["ürün_ismi"].astype(str)
     return df
+    
+@st.cache_data
+def load_user_interactions(file):
+    try:
+        df_users = pd.read_excel(file, sheet_name=1, engine="openpyxl")
+        df_users.columns = df_users.columns.astype(str)
+        return df_users
+    except Exception as e:
+        st.warning("İkinci sayfa (sheet2) yüklenemedi veya geçersiz.")
+        return None
+
+kullanici_verisi = load_user_interactions(uploaded_file)
 
 veri = load_data(uploaded_file)
 
@@ -216,12 +228,84 @@ def generate_campaigns(df):
 
     return campaigns
 
+def generate_user_segments(user_df, product_df):
+    if user_df is None:
+        return pd.DataFrame()
+
+    # ürün ID üzerinden kategori eşlemesi
+    merged = user_df.merge(product_df[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
+    merged = merged[merged['action'] == 'view']
+
+    # kullanıcı + kategori bazında kaç kez baktığını bul
+    group = merged.groupby(['user_id', 'kategori']).size().reset_index(name='view_count')
+    group = group[group['view_count'] >= 2]
+
+    # her kategori için segment oluştur
+    segments = group.groupby('kategori').agg(
+        kullanıcı_sayısı=('user_id', 'count'),
+        toplam_görüntüleme=('view_count', 'sum')
+    ).reset_index()
+
+    return segments
+
+def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görüntüleme_sayısı):
+    prompt = f"""
+    There are {kullanıcı_sayısı} users who viewed products in the '{segment_kategori}' category a total of {görüntüleme_sayısı} times. 
+    They haven't added anything to their cart or completed a purchase.
+    Propose a personalized campaign that would work for them.
+    Explain why this strategy is suitable and estimate the uplift in conversion rate and the revenue impact. 
+    Average product price is 110 TL. Please write the campaign suggestion, explanation and impact estimation in Turkish.
+    """
+
+    response = requests.post(
+        "https://openrouter.ai/api/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {openrouter_api_key}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "model": model_secimi,
+            "messages": [{"role": "user", "content": prompt}],
+        },
+        timeout=30
+    )
+
+    try:
+        return response.json()["choices"][0]["message"]["content"]
+    except:
+        return "GPT yanıtı alınamadı."
+
+
 # PART 3 – Kampanya Dashboardu
 def kampanyalari_getir():
     return generate_campaigns(veri)
 
 if show_dashboard:
     kampanyalar = kampanyalari_getir()
+
+    st.markdown("---")
+    st.markdown("## 👥 Kullanıcı Bazlı Segment Kampanyaları")
+    kullanici_kampanya_goster = st.checkbox("📌 Kullanıcı Segmentlerine Göre Kampanya Önerilerini Göster")
+
+    if kullanici_kampanya_goster and kullanici_verisi is not None:
+        segmentler = generate_user_segments(kullanici_verisi, veri)
+
+        if segmentler.empty:
+            st.info("Anlamlı kullanıcı segmenti bulunamadı.")
+        else:
+            for _, row in segmentler.iterrows():
+                kategori = row["kategori"]
+                kullanıcı_sayısı = row["kullanıcı_sayısı"]
+                görüntüleme = row["toplam_görüntüleme"]
+
+                st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
+                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
+                if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
+                    with st.spinner("Kaira düşünüyor..."):
+                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
+                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
+                        st.markdown(öneri)
+
 
     if not kampanyalar:
         st.info("Şu anda anlamlı bir kampanya fırsatı bulunamadı.")
