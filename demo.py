@@ -241,30 +241,45 @@ def generate_user_segments(user_df, product_df):
     if user_df is None:
         return pd.DataFrame()
 
-    # ürün ID üzerinden kategori eşlemesi
+    # Ürün kategorilerini eşleştir
     merged = user_df.merge(product_df[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
-    merged = merged[merged['action'] == 'view']
 
-    # kullanıcı + kategori bazında kaç kez baktığını bul
-    group = merged.groupby(['user_id', 'kategori']).size().reset_index(name='view_count')
-    group = group[group['view_count'] >= 2]
+    # Purchase yapan kullanıcıları belirle
+    purchased_users = merged[merged["action"] == "purchase"]["user_id"].unique()
 
-    # her kategori için segment oluştur
+    # Purchase yapmamış olanları al (potansiyel müşteri havuzu)
+    potential_users = merged[~merged["user_id"].isin(purchased_users)]
+
+    # Sadece view, add_to_cart veya exit yapan kullanıcılar
+    relevant_actions = potential_users[potential_users["action"].isin(["view", "add_to_cart", "exit"])]
+
+    # Aynı kategoriye 2 veya daha fazla kez bakmış olanları al
+    group = relevant_actions.groupby(['user_id', 'kategori']).size().reset_index(name='interaction_count')
+    group = group[group['interaction_count'] >= 2]
+
+    # Segment bazlı özet tablo oluştur
     segments = group.groupby('kategori').agg(
         kullanıcı_sayısı=('user_id', 'count'),
-        toplam_görüntüleme=('view_count', 'sum')
+        toplam_görüntüleme=('interaction_count', 'sum')
     ).reset_index()
 
     return segments
 
 def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görüntüleme_sayısı):
-    prompt = f"""
-    There are {kullanıcı_sayısı} users who viewed products in the '{segment_kategori}' category a total of {görüntüleme_sayısı} times. 
-    They haven't added anything to their cart or completed a purchase.
-    Propose a personalized campaign that would work for them.
-    Explain why this strategy is suitable and estimate the uplift in conversion rate and the revenue impact. 
-    Average product price is 110 TL. Please write the campaign suggestion, explanation and impact estimation in Turkish.
-    """
+prompt = f"""
+The user segment below has shown interest in the '{segment_kategori}' category a total of {görüntüleme_sayısı} times.
+These users have viewed products, added them to their cart, or exited the product page, but none of them completed a purchase.
+
+Based on this behavior:
+1. Analyze the potential reasons why they haven't converted yet,
+2. Propose a campaign strategy that could effectively convert this segment into customers,
+3. Estimate the expected increase in conversion rate and revenue impact.
+
+Please write the output in Turkish and structure it as follows:
+- Kullanıcı Davranış Analizi
+- Kampanya Önerisi
+- Beklenen Etki (Dönüşüm oranı & Ciro artışı)
+"""
 
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
