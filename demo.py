@@ -73,7 +73,7 @@ st.sidebar.header("Kampanya Seçimi")
 
 kampanya_secimi = st.sidebar.radio(
     "Bir kampanya ekranı seçin:",
-    ["Yok", "📊 Ürün Bazlı Kampanya Dashboardu", "👥 Müşteri Segment Kampanyaları"]
+  ["🧾 Ürün Fiyatlandırma Analizi", "📊 Ürün Bazlı Kampanya Dashboardu", "👥 Müşteri Segment Kampanyaları"]
 )
 
 show_dashboard = kampanya_secimi == "📊 Ürün Bazlı Kampanya Dashboardu"
@@ -347,3 +347,58 @@ elif show_segment_dashboard and not show_dashboard:
                         öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme)
                         st.success("📌 Kampanya Önerisi ve Açıklaması:")
                         st.markdown(öneri)
+
+        # Kampanyasız tahmini hesapla
+        kampanyasiz_revenue = []
+        for _, row in enumerate(kampanya["products"]):
+            try:
+                base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
+                base_sales = random.uniform(0.8, 1.2)
+                daily_sale = base_price * base_sales
+                kampanyasiz_revenue.append(round(daily_sale, 2))
+            except:
+                kampanyasiz_revenue.append(0)
+
+        kampanyasiz_toplam = [
+            round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2)
+            for _ in range(kampanya["duration_days"])
+        ]
+
+        # Grafik
+        fig = go.Figure()
+
+        fig.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanya["daily_revenue"],
+            mode='lines+markers',
+            name='Kampanyalı',
+            line=dict(color='green')
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=list(range(1, kampanya["duration_days"] + 1)),
+            y=kampanyasiz_toplam,
+            mode='lines+markers',
+            name='Kampanyasız',
+            line=dict(color='orange', dash='dot')
+        ))
+
+        fig.update_layout(
+            title="📊 Günlük Ciro Karşılaştırması (Kampanyalı vs. Kampanyasız)",
+            xaxis_title="Gün",
+            yaxis_title="Ciro (TL)",
+            height=400,
+            template="plotly_white"
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        kampanyali_toplam = sum(kampanya["daily_revenue"])
+        kampanyasiz_toplam_genel = sum(kampanyasiz_toplam)
+        fark_tl = kampanyali_toplam - kampanyasiz_toplam_genel
+        fark_yuzde = (fark_tl / kampanyasiz_toplam_genel) * 100 if kampanyasiz_toplam_genel else 0
+
+        st.markdown("### 💹 Toplam Ciro Farkı")
+        st.write(f"**Fark (TL):** {round(fark_tl)} TL")
+        st.write(f"**Fark (%):** %{round(fark_yuzde, 2)}")
+
