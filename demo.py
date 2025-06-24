@@ -425,7 +425,14 @@ elif show_segment_dashboard and not show_dashboard:
 
             if kullanıcı_sayısı >= 200:
                 st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
-                st.write(f"Toplam {görüntüleme} kez incelenmiş ama hiç satın alınmamış.")
+                st.markdown(
+                    f"Bu segmentteki kullanıcılar şu şekilde etkileşimde bulunmuş:\n\n"
+                    f"- 👁️ **{görüntüleme}** kez ürün görüntülemiş,\n"
+                    f"- 🛒 **{row['sepete_ekleme']}** kez sepete eklemiş,\n"
+                    f"- 🚪 **{row['çıkış']}** kez sayfayı terk etmiş.\n\n"
+                    f"Ancak hiçbir kullanıcı bu kategoriye ait ürünlerden satın alma gerçekleştirmemiş."
+                )
+
 
                 merged = kullanici_verisi.merge(veri[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
                 segment_user_ids = merged[
