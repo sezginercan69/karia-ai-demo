@@ -241,45 +241,59 @@ def generate_user_segments(user_df, product_df):
     if user_df is None:
         return pd.DataFrame()
 
-    # Ürün kategorilerini eşleştir
     merged = user_df.merge(product_df[['ürün_ismi', 'kategori']], left_on="product_id", right_on="ürün_ismi", how="left")
-
-    # Purchase yapan kullanıcıları belirle
     purchased_users = merged[merged["action"] == "purchase"]["user_id"].unique()
-
-    # Purchase yapmamış olanları al (potansiyel müşteri havuzu)
     potential_users = merged[~merged["user_id"].isin(purchased_users)]
 
-    # Sadece view, add_to_cart veya exit yapan kullanıcılar
     relevant_actions = potential_users[potential_users["action"].isin(["view", "add_to_cart", "exit"])]
 
-    # Aynı kategoriye 2 veya daha fazla kez bakmış olanları al
-    group = relevant_actions.groupby(['user_id', 'kategori']).size().reset_index(name='interaction_count')
-    group = group[group['interaction_count'] >= 2]
+    segment_summary = []
 
-    # Segment bazlı özet tablo oluştur
-    segments = group.groupby('kategori').agg(
-        kullanıcı_sayısı=('user_id', 'count'),
-        toplam_görüntüleme=('interaction_count', 'sum')
-    ).reset_index()
+    for kategori, grup in relevant_actions.groupby("kategori"):
+        if grup.empty:
+            continue
 
-    return segments
+        user_ids = grup["user_id"].unique()
+        if len(user_ids) < 200:
+            continue
 
-def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görüntüleme_sayısı):
+        view_count = grup[grup["action"] == "view"].shape[0]
+        cart_count = grup[grup["action"] == "add_to_cart"].shape[0]
+        exit_count = grup[grup["action"] == "exit"].shape[0]
+
+        total_interaction = view_count + cart_count + exit_count
+
+        segment_summary.append({
+            "kategori": kategori,
+            "kullanıcı_sayısı": len(user_ids),
+            "görüntüleme": view_count,
+            "sepete_ekleme": cart_count,
+            "çıkış": exit_count,
+            "toplam_etkileşim": total_interaction
+        })
+
+    return pd.DataFrame(segment_summary)
+
+def gpt_generate_user_campaign(segment_kategori, kullanıcı_sayısı, görüntüleme, sepete_ekleme, çıkış):
     prompt = f"""
-    The user segment below has shown interest in the '{segment_kategori}' category a total of {görüntüleme_sayısı} times.
-    These users have viewed products, added them to their cart, or exited the product page, but none of them completed a purchase.
+The user segment below has interacted with the '{segment_kategori}' category but has not completed a purchase.
 
-    Based on this behavior:
-    1. Analyze the potential reasons why they haven't converted yet,
-    2. Propose a campaign strategy that could effectively convert this segment into customers,
-    3. Estimate the expected increase in conversion rate and revenue impact.
+Details:
+- Number of users: {kullanıcı_sayısı}
+- Views: {görüntüleme}
+- Add to cart: {sepete_ekleme}
+- Exits without action: {çıkış}
 
-    Please write the output in Turkish and structure it as follows:
-    - Kullanıcı Davranış Analizi:
-    - Kampanya Önerisi:
-    - Beklenen Etki (Dönüşüm oranı & Ciro artışı):
-    """
+Based on this behavior:
+1. Analyze how this group behaves and why they might not have converted yet,
+2. Propose a tailored campaign strategy for this group,
+3. Estimate the potential increase in conversion rate and the revenue impact.
+
+Please write the answer in Turkish with the following structure:
+- Kullanıcı Davranış Analizi:
+- Kampanya Önerisi:
+- Beklenen Etki (Dönüşüm oranı & Ciro artışı):
+"""
 
     response = requests.post(
         "https://openrouter.ai/api/v1/chat/completions",
