@@ -421,7 +421,7 @@ elif show_segment_dashboard and not show_dashboard:
         for _, row in segmentler.iterrows():
             kategori = row["kategori"]
             kullanıcı_sayısı = row["kullanıcı_sayısı"]
-            görüntüleme = row["toplam_görüntüleme"]
+            görüntüleme = row["görüntüleme"]
 
             if kullanıcı_sayısı >= 200:
                 st.subheader(f"🎯 Segment: {kategori} – {kullanıcı_sayısı} kullanıcı")
