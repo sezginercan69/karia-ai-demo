@@ -253,7 +253,7 @@ def generate_user_segments(user_df, product_df):
         if grup.empty:
             continue
 
-        user_ids = grup["user_id"].unique()
+        user_ids = grup[grup["action"].isin(["view", "add_to_cart", "exit"])]["user_id"].unique()
         if len(user_ids) < 200:
             continue
 
