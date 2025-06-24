@@ -442,10 +442,10 @@ elif show_segment_dashboard and not show_dashboard:
                     mime="text/csv"
                 )
 
-if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
-    with st.spinner("Kaira düşünüyor..."):
-        sepete_ekleme = row["sepete_ekleme"]
-        çıkış = row["çıkış"]
-        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme, sepete_ekleme, çıkış)
-        st.success("📌 Kampanya Önerisi ve Açıklaması:")
-        st.markdown(öneri)
+            if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
+                    with st.spinner("Kaira düşünüyor..."):
+                        sepete_ekleme = row["sepete_ekleme"]
+                        çıkış = row["çıkış"]
+                        öneri = gpt_generate_user_campaign(kategori, kullanıcı_sayısı, görüntüleme, sepete_ekleme, çıkış)
+                        st.success("📌 Kampanya Önerisi ve Açıklaması:")
+                        st.markdown(öneri)
