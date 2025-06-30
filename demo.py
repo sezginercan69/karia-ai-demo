@@ -199,7 +199,7 @@ def generate_campaigns(df):
         for _, row in sampled.iterrows():
             discount_rate = random.uniform(10, 30)
             new_price = round(row["mevcut_fiyat"] * (1 - discount_rate / 100))
-            expected_sales_increase = row["satış_hızı"] * (1 + discount_rate / 10)
+            expected_sales_increase = row["satış_hızı"] * (1 + discount_rate / 2)
             added_revenue = expected_sales_increase * new_price
             roi = round((added_revenue - row["satış_hızı"] * row["mevcut_fiyat"]) / (row["stok_miktarı"] * row["ürün_maliyeti"] * discount_rate / 100 + 1), 2)
 
