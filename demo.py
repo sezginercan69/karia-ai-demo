@@ -66,7 +66,7 @@ veri = load_data(uploaded_file)
 st.sidebar.header("Model Seçimi")
 model_secimi = st.sidebar.selectbox(
     "Bir model seçin:",
-    ["openai/gpt-3.5-turbo", "openai/gpt-4o-mini"]
+    ["google/gemini-2.5-flash-lite-preview-06-17", "openai/gpt-4o-mini"]
 )
 
 st.sidebar.header("Kampanya Seçimi")
