@@ -6,6 +6,7 @@ import requests
 import random
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import io
 
 # OpenRouter API key
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
@@ -448,11 +449,13 @@ elif show_segment_dashboard and not show_dashboard:
 
                 segment_df = kullanici_verisi[kullanici_verisi["user_id"].isin(segment_user_ids)]
 
+                buffer = io.BytesIO()
+                segment_df.to_excel(buffer, index=False, engine="openpyxl")
                 st.download_button(
                     label=f"📥 '{kategori}' Segment Kullanıcılarını İndir",
-                    data=segment_df.to_csv(index=False).encode("utf-8"),
-                    file_name=f"segment_kullanicilar_{kategori}.csv",
-                    mime="text/csv"
+                    data=buffer.getvalue(),
+                    file_name=f"segment_kullanicilar_{kategori}.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
             if st.button(f"💡 Kampanya Önerisi Al – {kategori}"):
