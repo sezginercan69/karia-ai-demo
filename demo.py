@@ -144,8 +144,14 @@ if not show_dashboard and not show_segment_dashboard:
                 st.success("Kaira'nın Önerisi:")
                 st.markdown(result)
             except Exception as e:
-                st.error("Bir hata oluştu. Lütfen tekrar deneyin.")
-
+                import traceback
+                st.error(f"Bir hata oluştu: {e}")
+                st.code(traceback.format_exc(), language="python")
+                try:
+                    st.json(response.json())
+                except:
+                    st.write("Yanıt JSON'a parse edilemedi.")
+                    st.write(response.text)
 
 # Kampanya üretim fonksiyonu
 # PART 2
