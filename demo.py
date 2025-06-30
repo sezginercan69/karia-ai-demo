@@ -189,7 +189,8 @@ def generate_campaigns(df):
         if len(subset) < 5:
             continue
 
-        sampled = subset.sample(min(30, len(subset)))
+        # Kampanyaya en uygun ürünlerden başlayarak sıralamak için
+        sampled = subset.sort_values(by=["satış_hızı", "stok_miktarı"], ascending=[True, False]).copy()
         campaign_products = []
         expected_revenue = 0
         total_roi = 0
@@ -346,6 +347,18 @@ if show_dashboard and not show_segment_dashboard:
         with st.expander(f"📃 Ürün Listesi ({len(kampanya['products'])} ürün)"):
             for p in kampanya["products"]:
                 st.write(f"- {p['name']} | {p['current_price']} TL → {p['new_price']} TL")
+    
+                # İNDİRME BUTONU EKLENECEK KISIM
+        kampanya_df = pd.DataFrame(kampanya["products"])
+        buffer = io.BytesIO()
+        kampanya_df.to_excel(buffer, index=False, engine="openpyxl")
+    
+        st.download_button(
+            label=f"📥 Kampanya Ürün Listesini İndir",
+            data=buffer.getvalue(),
+            file_name=f"kampanya_urun_listesi_{kampanya['title'].replace(' ','_')}.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
         kampanyasiz_revenue = []
         for _, row in enumerate(kampanya["products"]):
