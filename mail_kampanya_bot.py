@@ -7,7 +7,7 @@ import pandas as pd
 import io
 from datetime import datetime
 
-st.set_page_config(page_title="Kampanya Mail Bot", layout="centered")
+st.set_page_config(page_title="Kampanya Mail Bot", layout="wide")
 st.title("📧 Kampanya Mail Bot")
 
 st.info("Bu sayfa Zara, H&M, Mango gibi sitelerden gelen kampanya maillerini tarar ve raporlar.")
