@@ -4,3 +4,4 @@ openpyxl
 requests
 matplotlib
 plotly
+beautifulsoup4
