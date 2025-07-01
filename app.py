@@ -4,7 +4,7 @@ import os
 st.set_page_config(page_title="LCW AI Demo", layout="wide")
 
 # Sayfa seçimi
-sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Akıllı Kampanya Analizi", "Tedarik Planlama Asistanı"])
+sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Akıllı Kampanya Analizi", "Tedarik Planlama Asistanı", "Kampanya Mail Bot"])
 
 # Anasayfa
 if sayfa == "Anasayfa":
