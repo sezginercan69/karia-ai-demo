@@ -4,6 +4,8 @@ import email
 from bs4 import BeautifulSoup
 import pandas as pd
 import io
+from email.header import decode_header
+
 
 st.set_page_config(page_title="Kampanya Mail Bot", layout="centered")
 
@@ -35,8 +37,20 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                 raw_email = msg_data[0][1]
                 msg = email.message_from_bytes(raw_email)
 
-                subject = msg["subject"]
-                from_ = msg["from"]
+                subject_encoded = msg["subject"]
+                decoded_subject, encoding = decode_header(subject_encoded)[0]
+                if isinstance(decoded_subject, bytes):
+                    subject = decoded_subject.decode(encoding if encoding else "utf-8", errors="ignore")
+                else:
+                    subject = decoded_subject
+                
+                from_encoded = msg["from"]
+                decoded_from, encoding = decode_header(from_encoded)[0]
+                if isinstance(decoded_from, bytes):
+                    from_ = decoded_from.decode(encoding if encoding else "utf-8", errors="ignore")
+                else:
+                    from_ = decoded_from
+
 
                 if msg.is_multipart():
                     for part in msg.walk():
