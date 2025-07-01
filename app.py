@@ -6,6 +6,9 @@ st.set_page_config(page_title="LCW AI Demo", layout="wide")
 # Sayfa seçimi
 sayfa = st.sidebar.radio("🧭 Sayfa Seçimi", ["Anasayfa", "Akıllı Kampanya Analizi", "Tedarik Planlama Asistanı", "Kampanya Mail Bot"])
 
+elif sayfa == "Kampanya Mail Bot":
+    exec(open("mail_kampanya_bot.py").read())
+
 # Anasayfa
 if sayfa == "Anasayfa":
     st.video("Kaira.mp4")  # Video dosyasını göster
