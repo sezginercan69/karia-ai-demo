@@ -12,7 +12,7 @@ st.title("📧 Kampanya Mail Bot")
 st.info("Bu sayfa, Zara, H&M, Mango gibi sitelerden gelen kampanya maillerini tarar ve raporlar.")
 
 EMAIL = st.text_input("📧 Gmail adresini gir:", value="kaira.kampanya@gmail.com")
-PASSWORD = st.text_input("🔑 Uygulama şifresini gir:", type="jxow qewg aofs jzec")
+PASSWORD = st.text_input("🔑 Uygulama şifresini gir:", type="password")
 
 if st.button("📨 Kampanya Maillerini Kontrol Et"):
     try:
