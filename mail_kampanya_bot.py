@@ -16,7 +16,7 @@ EMAIL = "kaira.kampanya@gmail.com"
 PASSWORD = "jxowqewgaofsjzec"  # 16 hanelik uygulama şifren, boşluksuz
 
 
-st.info("Yeni kampanya mailleri kontrol ediliyor...")
+if st.button("📨 Kampanya Maillerini Kontrol Et"):
     try:
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(EMAIL, PASSWORD)
