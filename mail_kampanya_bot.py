@@ -12,10 +12,11 @@ st.title("📧 Kampanya Mail Bot")
 
 st.info("Bu sayfa Zara, H&M, Mango gibi sitelerden gelen kampanya maillerini tarar ve raporlar.")
 
-EMAIL = st.text_input("📧 Gmail adresini gir:", value="kaira.kampanya@gmail.com")
-PASSWORD = st.text_input("🔑 Uygulama şifresini gir:", type="password")
+EMAIL = "kaira.kampanya@gmail.com"
+PASSWORD = "jxowqewgaofsjzec"  # 16 hanelik uygulama şifren, boşluksuz
 
-if st.button("📨 Kampanya Maillerini Kontrol Et"):
+
+st.info("Yeni kampanya mailleri kontrol ediliyor...")
     try:
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
         imap.login(EMAIL, PASSWORD)
