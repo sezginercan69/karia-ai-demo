@@ -70,6 +70,9 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                     firma = "Zara"
                 elif "hm" in from_.lower() or "h&m" in from_.lower():
                     firma = "H&M"
+                elif "hm" in from_.lower() or "h&m" in from_.lower():
+                    firma = "Lcw"
+                    
                 else:
                     firma = "Bilinmeyen"
 
