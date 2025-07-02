@@ -80,10 +80,11 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                     kampanya_set.add(key)
                     kampanya_listesi.append({
                         "Tarih": formatted_date,
-                        "Gönderen": from_,
+                        "Gönderen": from_,   # DÜZELTİLDİ
                         "Konu": subject,
                         "İçerik": text[:300] + "..."
                     })
+
 
 
                 kampanya_listesi.append({
