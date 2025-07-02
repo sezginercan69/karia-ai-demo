@@ -35,6 +35,8 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
         mail_ids = all_messages[-50:]
 
         kampanya_listesi = []
+        kampanya_set = set()  # Tekilleştirme için
+
 
         for mail_id in reversed(mail_ids):
             status, msg_data = imap.fetch(mail_id, "(RFC822)")
@@ -72,15 +74,17 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
 
             # Filtreleme: İçerikte hem % hem indirim geçiyorsa al
             if "%" in text and "indirim" in text.lower():
-                # Firma belirleme kaldırıldı, gönderenden marka çıkarmaya çalışmıyoruz, doğrudan göndereni gösteriyoruz
-                firma = from_
-            
-                kampanya_listesi.append({
-                    "Tarih": formatted_date,
-                    "Gönderen": firma,
-                    "Konu": subject,
-                    "İçerik": text[:300] + "..."
-                })
+                # Tekilleştirme için kontrol
+                key = (from_, subject, text[:50])
+                if key not in kampanya_set:
+                    kampanya_set.add(key)
+                    kampanya_listesi.append({
+                        "Tarih": formatted_date,
+                        "Gönderen": from_,
+                        "Konu": subject,
+                        "İçerik": text[:300] + "..."
+                    })
+
 
                 kampanya_listesi.append({
                     "Tarih": formatted_date,
