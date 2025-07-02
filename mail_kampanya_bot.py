@@ -72,13 +72,32 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
             soup = BeautifulSoup(body, "html.parser")
             text = soup.get_text(separator=" ", strip=True)
 
-            # Banner görseli yakala
-            img_tag = soup.find("img")
-            if img_tag and img_tag.get("src"):
-                banner_url = img_tag.get("src")
-            else:
-                banner_url = None
+            # Banner görselini belirleme
+            img_tags = soup.find_all("img")
+            banner_url = None
+            max_width = 0
             
+            for img in img_tags:
+                src = img.get("src")
+                if src:
+                    width = img.get("width")
+                    if width:
+                        try:
+                            width = int(width)
+                        except:
+                            width = 0
+                    else:
+                        width = 0
+            
+                    if width > max_width:
+                        max_width = width
+                        banner_url = src
+            
+            # Eğer width bilgisi yoksa ve banner_url hâlâ bulunamadıysa fallback olarak ilk görseli al
+            if not banner_url and img_tags:
+                banner_url = img_tags[0].get("src")
+            
+                        
 
             lower_text = (subject + " " + text).lower()
             
