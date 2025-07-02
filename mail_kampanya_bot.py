@@ -28,8 +28,8 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
         # Promotions mailleri al
         status_promotions, messages_promotions = imap.search(None, 'X-GM-LABELS', 'CATEGORY_PROMOTIONS')
         
-        # İki sonucu birleştir
-        all_messages = messages_primary[0].split() + messages_promotions[0].split()
+        # Primary ve Promotions'taki mailleri birleştir ve tekrar edenleri çıkar
+        all_messages = list(set(messages_primary[0].split() + messages_promotions[0].split()))
         
         # Son 50 maili al
         mail_ids = all_messages[-50:]
