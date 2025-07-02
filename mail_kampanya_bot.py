@@ -22,8 +22,17 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
         imap.login(EMAIL, PASSWORD)
         imap.select("INBOX")
 
-        status, messages = imap.search(None, 'ALL')  # Okunmuş + okunmamış tüm mailleri alır
-        mail_ids = messages[0].split()[-50:]  # Son 50 maili al
+        # Sadece INBOX (Primary) mailleri al
+        status_primary, messages_primary = imap.search(None, 'ALL')
+        
+        # Promotions mailleri al
+        status_promotions, messages_promotions = imap.search(None, 'X-GM-LABELS', 'CATEGORY_PROMOTIONS')
+        
+        # İki sonucu birleştir
+        all_messages = messages_primary[0].split() + messages_promotions[0].split()
+        
+        # Son 50 maili al
+        mail_ids = all_messages[-50:]
 
         kampanya_listesi = []
 
