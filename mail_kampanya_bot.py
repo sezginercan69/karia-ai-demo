@@ -85,16 +85,6 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                         "İçerik": text[:300] + "..."
                     })
 
-
-
-                kampanya_listesi.append({
-                    "Tarih": formatted_date,
-                    "Firma": firma,
-                    "Gönderen": from_,
-                    "Konu": subject,
-                    "İçerik": text[:300] + "..."
-                })
-
         if kampanya_listesi:
             kampanya_df = pd.DataFrame(kampanya_listesi)
             st.success(f"📨 {len(kampanya_df)} kampanya maili bulundu ve listelendi.")
