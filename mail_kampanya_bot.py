@@ -15,7 +15,6 @@ st.info("Bu sayfa Zara, H&M, Mango gibi sitelerden gelen kampanya maillerini tar
 EMAIL = "kaira.kampanya@gmail.com"
 PASSWORD = "jxowqewgaofsjzec"  # 16 hanelik uygulama şifren, boşluksuz
 
-
 if st.button("📨 Kampanya Maillerini Kontrol Et"):
     try:
         imap = imaplib.IMAP4_SSL("imap.gmail.com")
@@ -70,33 +69,7 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                     body = msg.get_payload(decode=True).decode(errors="ignore")
 
             soup = BeautifulSoup(body, "html.parser")
-            text = soup.get_text(separator=" ", strip=True)
-
-            # Banner görselini belirleme
-            img_tags = soup.find_all("img")
-            banner_url = None
-            max_width = 0
-            
-            for img in img_tags:
-                src = img.get("src")
-                if src:
-                    width = img.get("width")
-                    if width:
-                        try:
-                            width = int(width)
-                        except:
-                            width = 0
-                    else:
-                        width = 0
-            
-                    if width > max_width:
-                        max_width = width
-                        banner_url = src
-            
-            # Eğer width bilgisi yoksa ve banner_url hâlâ bulunamadıysa fallback olarak ilk görseli al
-            if not banner_url and img_tags:
-                banner_url = img_tags[0].get("src")
-            
+            text = soup.get_text(separator=" ", strip=True)  
                         
 
             lower_text = (subject + " " + text).lower()
@@ -127,23 +100,12 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                         "Konu": subject,
                         "Kategori": kategori,
                         "İçerik": text[:300] + "...",
-                        "Görsel URL": banner_url if banner_url else "Yok"
                     })
 
         if kampanya_listesi:
             kampanya_df = pd.DataFrame(kampanya_listesi)
             st.success(f"📨 {len(kampanya_df)} kampanya maili bulundu ve listelendi.")
             st.dataframe(kampanya_df)
-            st.write("### Kampanya Görselleri Ön İzleme")
-
-            for index, row in kampanya_df.iterrows():
-                st.write(f"**{row['Konu']}** - {row['Tarih']} - {row['Kategori']}")
-                if row['Görsel URL'] != "Yok":
-                    st.image(row['Görsel URL'], width=300)
-                else:
-                    st.write("_Görsel bulunamadı_")
-                st.markdown("---")
-
 
             buffer = io.BytesIO()
             kampanya_df.to_excel(buffer, index=False, engine="openpyxl")
