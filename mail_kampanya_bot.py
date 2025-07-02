@@ -72,6 +72,14 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
             soup = BeautifulSoup(body, "html.parser")
             text = soup.get_text(separator=" ", strip=True)
 
+            # Banner görseli yakala
+            img_tag = soup.find("img")
+            if img_tag and img_tag.get("src"):
+                banner_url = img_tag.get("src")
+            else:
+                banner_url = None
+            
+
             lower_text = (subject + " " + text).lower()
             
             if "ilk alışveriş" in lower_text or "ilk sipariş" in lower_text or "yeni üyelik" in lower_text:
