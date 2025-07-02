@@ -63,18 +63,15 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
 
             # Filtreleme: İçerikte hem % hem indirim geçiyorsa al
             if "%" in text and "indirim" in text.lower():
-                # Firma belirleme
-                if "mango" in from_.lower():
-                    firma = "Mango"
-                elif "zara" in from_.lower():
-                    firma = "Zara"
-                elif "hm" in from_.lower() or "h&m" in from_.lower():
-                    firma = "H&M"
-                elif "hm" in from_.lower() or "h&m" in from_.lower():
-                    firma = "Lcw"
-                    
-                else:
-                    firma = "Bilinmeyen"
+                # Firma belirleme kaldırıldı, gönderenden marka çıkarmaya çalışmıyoruz, doğrudan göndereni gösteriyoruz
+                firma = from_
+            
+                kampanya_listesi.append({
+                    "Tarih": formatted_date,
+                    "Gönderen": firma,
+                    "Konu": subject,
+                    "İçerik": text[:300] + "..."
+                })
 
                 kampanya_listesi.append({
                     "Tarih": formatted_date,
