@@ -106,8 +106,9 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                         "Tarih": formatted_date,
                         "Gönderen": from_,
                         "Konu": subject,
-                        "Kategori": kategori,          # EKLENDİ
-                        "İçerik": text[:300] + "..."
+                        "Kategori": kategori,
+                        "İçerik": text[:300] + "...",
+                        "Görsel URL": banner_url if banner_url else "Yok"
                     })
 
         if kampanya_listesi:
