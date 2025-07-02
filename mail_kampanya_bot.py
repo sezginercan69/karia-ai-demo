@@ -115,6 +115,16 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
             kampanya_df = pd.DataFrame(kampanya_listesi)
             st.success(f"📨 {len(kampanya_df)} kampanya maili bulundu ve listelendi.")
             st.dataframe(kampanya_df)
+            st.write("### Kampanya Görselleri Ön İzleme")
+
+            for index, row in kampanya_df.iterrows():
+                st.write(f"**{row['Konu']}** - {row['Tarih']} - {row['Kategori']}")
+                if row['Görsel URL'] != "Yok":
+                    st.image(row['Görsel URL'], width=300)
+                else:
+                    st.write("_Görsel bulunamadı_")
+                st.markdown("---")
+
 
             buffer = io.BytesIO()
             kampanya_df.to_excel(buffer, index=False, engine="openpyxl")
