@@ -72,6 +72,22 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
             soup = BeautifulSoup(body, "html.parser")
             text = soup.get_text(separator=" ", strip=True)
 
+            lower_text = (subject + " " + text).lower()
+            
+            if "ilk alışveriş" in lower_text or "ilk sipariş" in lower_text or "yeni üyelik" in lower_text:
+                kategori = "İlk Alışveriş İndirimi"
+            elif "sezon" in lower_text or "yeni sezon" in lower_text or "final indirimi" in lower_text or "büyük indirim" in lower_text:
+                kategori = "Sezon İndirimi"
+            elif "kupon" in lower_text or "kod" in lower_text or "promo" in lower_text:
+                kategori = "Kupon Kodu"
+            elif "yeni koleksiyon" in lower_text or "yeni ürün" in lower_text or "ilk kez" in lower_text:
+                kategori = "Yeni Ürün Lansmanı"
+            elif "ücretsiz kargo" in lower_text or "kargo bedava" in lower_text:
+                kategori = "Ücretsiz Kargo"
+            else:
+                kategori = "Diğer"
+            
+
             # Filtreleme: İçerikte hem % hem indirim geçiyorsa al
             if "%" in text and "indirim" in text.lower():
                 # Tekilleştirme için kontrol
@@ -80,8 +96,9 @@ if st.button("📨 Kampanya Maillerini Kontrol Et"):
                     kampanya_set.add(key)
                     kampanya_listesi.append({
                         "Tarih": formatted_date,
-                        "Gönderen": from_,   # DÜZELTİLDİ
+                        "Gönderen": from_,
                         "Konu": subject,
+                        "Kategori": kategori,          # EKLENDİ
                         "İçerik": text[:300] + "..."
                     })
 
