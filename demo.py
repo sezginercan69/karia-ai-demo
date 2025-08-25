@@ -336,21 +336,6 @@ if show_dashboard and not show_segment_dashboard:
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
 
-        kampanyasiz_revenue = []
-        for _, row in enumerate(kampanya["products"]):
-            try:
-                base_price = float(str(row["current_price"]).replace(",", ".").replace(" TL", "").strip())
-                base_sales = random.uniform(0.8, 1.2)
-                daily_sale = base_price * base_sales
-                kampanyasiz_revenue.append(round(daily_sale, 2))
-            except:
-                kampanyasiz_revenue.append(0)
-
-        kampanyasiz_toplam = [
-            round(sum(kampanyasiz_revenue) * (1 + random.uniform(-0.05, 0.05)), 2)
-            for _ in range(kampanya["duration_days"])
-        ]
-
  # Kampanyasız tahmini hesapla
         kampanyasiz_revenue = []
         for _, row in enumerate(kampanya["products"]):
