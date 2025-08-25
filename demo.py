@@ -7,6 +7,7 @@ import random
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import io
+from core.router import run_for_product
 
 # OpenRouter API key
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
@@ -103,56 +104,31 @@ if not show_dashboard and not show_segment_dashboard:
 
     st.markdown("### 🤖 Kaira'dan Öneri Al")
     if st.button("💡 Ürün İçin Tavsiye Al"):
-        with st.spinner("Kaira düşünüyor..."):
-            prompt = f"""
-            Sen bir e-ticaret uzmanı yapay zekasısın. Aşağıdaki ürün bilgilerine göre:
-            1. Eğer gerekliyse yeni bir satış fiyatı öner, gerek değilse mevcut fiyatı koru.
-            2. Uygun bir kampanya önerisi sun (eğer gerekiyorsa).
-            3. Tüm kararlarının nedenlerini kısa ve net şekilde açıkla.
-
-            Ürün Bilgileri:
-            - Kategori: {secili_urun['kategori']}
-            - Mevcut Fiyat: {secili_urun['mevcut_fiyat']} TL
-            - Ürün Maliyeti: {secili_urun['ürün_maliyeti']} TL
-            - Stok: {secili_urun['stok_miktarı']}
-            - Satış Hızı: {secili_urun['satış_hızı']} / gün
-            - Yaş: {secili_urun['ürün_yaşı']} gün
-            - Beden Bulunurluğu: %{round(secili_urun['beden_bulunurluğu_oranı']*100)}
-            - Rakip Fiyat: {secili_urun['rakip_fiyat']} TL
-            - Hedef Kârlılık: %{round(secili_urun['hedef_karlılık_oranı']*100)}
-            - Dönüşüm Oranı: %{round(secili_urun['kategori_dönüşüm_oranı']*100)}
-            - Tıklama / Satış Oranı: %{round(secili_urun['tıklama_satış_oranı']*100)}
-            - Yaşam Döngüsü: {secili_urun['yaşam_döngüsü']}
-            - İade Oranı: %{round(secili_urun['iade_oranı']*100)}
-            - Sepette Bırakılma Oranı: %{round(secili_urun['sepette_bırakılma_oranı']*100)}
-            """
-
-            response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers={
-                    "Authorization": f"Bearer {openrouter_api_key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "model": model_secimi,
-                    "messages": [{"role": "user", "content": prompt}],
-                },
-                timeout=30
+        with st.spinner("Kaira hesaplıyor..."):
+            # Deterministik tek-karar motoru
+            plan = run_for_product(dict(secili_urun))
+    
+        modemap = {"discount": "İndirim", "price_up": "Fiyat Artışı", "hold": "Fiyatı Koru"}
+        st.success("Kaira'nın Önerisi (deterministik)")
+    
+        st.markdown(
+            f"**Mod:** {modemap.get(plan['mode'], plan['mode'])}  \n"
+            f"**Önerilen Fiyat:** {plan['recommended_price']} TL"
+            f"{('  (−' + str(plan['discount_pct']) + '%)') if plan['mode']=='discount' else ''}  \n"
+            f"**Beklenen (5 gün):** {plan['expected_units_5g']} adet | "
+            f"Ciro {plan['expected_revenue_5g']} TL | "
+            f"Kâr {plan['expected_profit_5g']} TL  \n"
+            f"**İnkremental Kâr:** {plan['expected_inc_profit_5g']} TL"
+        )
+    
+        if plan["mode"] == "discount" and plan["roi"] is not None:
+            st.caption(f"ROI: {plan['roi']}  |  Minimum güvenli fiyat: {plan['guard_min_price']} TL")
+        else:
+            st.caption(
+                f"Minimum güvenli fiyat (maliyet+marj): {plan['guard_min_price']} TL  |  "
+                f"β (elastikiyet): {plan['beta']}  |  q₀ (günlük): {plan['q0_per_day']}"
             )
 
-            try:
-                result = response.json()["choices"][0]["message"]["content"]
-                st.success("Kaira'nın Önerisi:")
-                st.markdown(result)
-            except Exception as e:
-                import traceback
-                st.error(f"Bir hata oluştu: {e}")
-                st.code(traceback.format_exc(), language="python")
-                try:
-                    st.json(response.json())
-                except:
-                    st.write("Yanıt JSON'a parse edilemedi.")
-                    st.write(response.text)
 
 # Kampanya üretim fonksiyonu
 # PART 2
