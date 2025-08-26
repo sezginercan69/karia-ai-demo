@@ -128,6 +128,12 @@ if not show_dashboard and not show_segment_dashboard:
                 f"Minimum güvenli fiyat (maliyet+marj): {plan['guard_min_price']} TL  |  "
                 f"β (elastikiyet): {plan['beta']}  |  q₀ (günlük): {plan['q0_per_day']}"
             )
+    
+        st.markdown("#### Neden bu karar?")
+        st.markdown(plan["explanation"])
+        # Opsiyonel bilgilendirme
+        st.caption("ℹ️ Bu açıklama sayısal kurallara göre otomatik üretilir; LLM kullanılmaz.")
+    
 
 
 # Kampanya üretim fonksiyonu
