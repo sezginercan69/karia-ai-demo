@@ -1,6 +1,6 @@
 # --- core/config.py ---
 HORIZON_DAYS = 5                 # simülasyon ufku (gün)
-MIN_MARGIN = 0.05                # güvenli taban: fiyat >= maliyet*(1+MIN_MARGIN)
+MIN_MARGIN = 0.10                # güvenli taban (guard): fiyat >= maliyet * (1 + 0.10)
 
 # İndirim ve fiyat artışı adayları (deterministik grid)
 DISCOUNT_GRID = [0.00, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
