@@ -69,24 +69,23 @@ def choose_price(row: Dict, q0: float, beta: float) -> Tuple[Dict, List[Dict]]:
             sc.update({"p_new": p_new, "mode": "price_up", "discount_pct": 0.0, "roi": None})
             candidates.append(sc)
     else:
-        # İndirim modu
+        # --- İNDİRİM MODU ---
         for d in DISCOUNT_GRID:
             p_new = round(p * (1 - d), 2)
             if not _guard_price(c, p_new):
                 continue
             sc = _score_candidate(row, q0, p_new, beta)
-            # ROI: sadece indirimde hesaplıyoruz
             units = sc["units"]
             disc_cost = max(p - p_new, 0.0) * units
             roi = (sc["inc_profit"] / disc_cost) if disc_cost > 0 else None
             sc.update({"p_new": p_new, "mode": "discount", "discount_pct": round(d*100, 1), "roi": roi})
             candidates.append(sc)
+        
+        # ✅ YENİ: Mevcut fiyatı (hold) her durumda adaylara ekle
+        sc_hold = _score_candidate(row, q0, p, beta)
+        sc_hold.update({"p_new": round(p, 2), "mode": "hold", "discount_pct": 0.0, "roi": None})
+        candidates.append(sc_hold)
 
-        # Hiç aday kalmadıysa, mevcut fiyatı koru
-        if not candidates:
-            sc = _score_candidate(row, q0, p, beta)
-            sc.update({"p_new": round(p,2), "mode": "hold", "discount_pct": 0.0, "roi": None})
-            candidates.append(sc)
 
     best = _pick_best(candidates, p_now=p)
     return best, candidates
