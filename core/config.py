@@ -1,3 +1,6 @@
+USE_LGBM    = True    # LightGBM'den ürün-beta kullan (öğrenilmiş beta varsa)
+USE_CAUSAL  = True    # CausalImpact uplift ile q0'ı kampanyasız hale düzelt
+USE_ORTOOLS = False   # Kampanya seçimi (şimdilik kapalı)
 # --- core/config.py ---
 HORIZON_DAYS = 5                 # simülasyon ufku (gün)
 MIN_MARGIN = 0.10                # güvenli taban (guard): fiyat >= maliyet * (1 + 0.10)
